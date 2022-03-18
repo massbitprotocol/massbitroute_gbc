@@ -37,21 +37,24 @@ function loadEnv() {
 	ROOT_DIR=$1
 	if [ -f "$ROOT_DIR/.env" ]; then
 		source $ROOT_DIR/.env
-		_file=$ROOT_DIR/.env
-		if [ -z "$MBR_ENV" ]; then
-			if [ -f "$ROOT_DIR/vars/ENV" ]; then
-				export MBR_ENV=$(cat "$ROOT_DIR/vars/ENV")
-			fi
-		fi
+	else
+		touch $ROOT_DIR/.env
+	fi
 
-		if [ -n "$MBR_ENV" ]; then
-			_file=$ROOT_DIR/.env.$MBR_ENV
+	_file=$ROOT_DIR/.env
+	if [ -z "$MBR_ENV" ]; then
+		if [ -f "$ROOT_DIR/vars/ENV" ]; then
+			export MBR_ENV=$(cat "$ROOT_DIR/vars/ENV")
 		fi
+		_file=$ROOT_DIR/.env.$MBR_ENV
+	fi
+	if [ -f "$_file" ]; then
 		source $_file
 
 		mkdir -p $ROOT_DIR/src
 		cat $_file | grep -v "^#" | awk -F'=' 'BEGIN{cfg="return {\n"}{sub(/^export\s*/,"",$1);cfg=cfg"[\""$1"\"]""=\""$2"\",\n"}END{print cfg"}"}' >$ROOT_DIR/src/env.lua
 	fi
+
 }
 function updateConfigs() {
 	echo "ROOT_DIR:$ROOT_DIR"
