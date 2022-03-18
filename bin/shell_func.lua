@@ -34,6 +34,7 @@ REDIS_DIR = ROOT_DIR .. "/bin/redis"
 TMP_DIR = ROOT_DIR .. "/tmp"
 CONF_DIR = ROOT_DIR .. "/gbc/conf"
 DB_DIR = ROOT_DIR .. "/db"
+VAR_CONF_ENV = ROOT_DIR .. "/src/env.lua"
 
 CONF_PATH = CONF_DIR .. "/config.lua"
 NGINX_CONF_PATH = CONF_DIR .. "/nginx.conf"
@@ -50,7 +51,7 @@ VAR_SUPERVISORD_CONF_PATH = TMP_DIR .. "/supervisord.conf"
 
 local _getValue, _checkVarConfig, _checkAppKeys
 local _updateCoreConfig, _updateNginxConfig
-local _updateRedisConfig, _updateSupervisordConfig
+local _updateRedisConfig, _updateSupervisordConfig, _replace_env
 
 local _SUPERVISOR_WORKER_PROG_TMPL =
     [[
@@ -73,8 +74,9 @@ end
 
 -- init
 
-package.path = ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/gbc/lib/?.lua;" .. package.path
-package.cpath = ROOT_DIR .. "/bin/openresty/lualib/?.so;" .. package.cpath
+package.path =
+    ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
+package.cpath = ROOT_DIR .. "/bin/openresty/lualib/?.so;" .. ROOT_DIR .. "/src/?.so;" .. package.cpath
 
 require("framework.init")
 
@@ -355,7 +357,11 @@ local _updateAppConfig = function(site_name, site_path, idx)
         contents_keys[#contents_keys + 1] = ""
 
         io.writefile(VAR_APP_KEYS_PATH, table.concat(contents_keys, "\n"))
-        io.writefile(TMP_DIR .. "/site_http_" .. site_name .. ".conf", contents_app)
+
+        local _site_file = TMP_DIR .. "/site_http_" .. site_name .. ".conf"
+        contents_app = _replace_env(contents_app)
+        print("write file:" .. _site_file)
+        io.writefile(_site_file, contents_app)
         local config = _checkVarConfig()
         local appkeys = _checkAppKeys()
         local appConfigs = Factory.makeAppConfigs(appkeys, config, package.path)
@@ -422,8 +428,23 @@ local _updateAppConfig = function(site_name, site_path, idx)
     else
         io.writefile(TMP_DIR .. "/site_http_" .. site_name .. ".conf", "")
     end
+    -- _replace_env(VAR_SUPERVISORD_CONF_PATH)
+    -- print("write file:" .. VAR_SUPERVISORD_CONF_PATH)
+
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup)
     --end
+end
+_replace_env = function(contents)
+    print("VAR_CONF_ENV:" .. VAR_CONF_ENV)
+    if io.exists(VAR_CONF_ENV) then
+        local _env = require("env")
+        print(_env["MBR_API"])
+        for _k, _v in pairs(_env) do
+            print("replace " .. "__ENV_" .. _k .. " to " .. _v)
+            contents = string.gsub(contents, "__ENV_" .. _k .. "__", _v)
+        end
+    end
+    return contents
 end
 _updateNginxConfig = function()
     local config = _checkVarConfig()
@@ -462,6 +483,9 @@ _updateNginxConfig = function()
 
     contents_sup = string.gsub(contents_sup, ";_WORKERS_", _supervisor .. "\n;_WORKERS_")
     contents_sup = string.gsub(contents_sup, "_GBC_CORE_ROOT_", ROOT_DIR)
+
+    -- _replace_env(VAR_SUPERVISORD_CONF_PATH)
+    print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup)
 
     local _pkg_path = _getValue(_sites_config, "lua_package_path")
@@ -625,6 +649,9 @@ _updateNginxConfig = function()
     )
 
     contents = string.gsub(contents, "_GBC_CORE_ROOT_", ROOT_DIR)
+
+    contents = _replace_env(contents)
+    print("write_file:" .. VAR_NGINX_CONF_PATH)
     io.writefile(VAR_NGINX_CONF_PATH, contents)
     return includes_path, includes_cpath
 end
