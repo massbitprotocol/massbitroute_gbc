@@ -1,7 +1,10 @@
 #!/bin/bash
 declare -i DEBUG=0
 ROOT_DIR=$(cd "$(dirname $0)" && pwd)
+
 source $ROOT_DIR/bin/shell_func.sh
+
+loadEnv $ROOT_DIR
 
 case "$1" in
 install_libs)
