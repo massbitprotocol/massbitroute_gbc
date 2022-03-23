@@ -55,7 +55,7 @@ function loadEnv() {
 	sub(/^export\s*/,"",$1);
 
 
-        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
+        cfg=cfg"[\""$1"\"]""=$2",\n";
 
 
 }
