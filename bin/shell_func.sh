@@ -56,11 +56,9 @@ function loadEnv() {
 	sub(/^export\s*/,"",$1);
 	val=$2;
 	val_1=substr(val,0,1);
-	if(length(val) == 0 || val_1 == '\'' || val_1 == '\"') {
-	cfg=cfg"[\""$1"\"]""=$2",\n";
-       	} else {
+
         cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
-	}
+
 }
 END{print cfg"}"}' >$ROOT_DIR/src/env.lua
 	fi
