@@ -61,7 +61,7 @@ function loadEnv() {
 	# cfg=cfg"[\""$1"\"]""=val",\n";    
        	# } else {
         # cfg=cfg"[\""$1"\"]""=\""val"\",\n" ;
-	}
+#	}
 }
 END{print cfg"}"}' >$ROOT_DIR/src/env.lua
 	fi
