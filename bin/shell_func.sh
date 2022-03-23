@@ -52,18 +52,18 @@ function loadEnv() {
 		mkdir -p $ROOT_DIR/src
 		cat $_file | grep -v "^#" | awk -F'=' 'BEGIN{cfg="return {\n"}
 {
-	sub(/^export\s*/,"",$1);
-#val_1=substr($2,0,1);
-#print val_1;
-        cfg=cfg"[\""$1"\"]""=$2",\n";
-
-#        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
-
-
-
+        sub(/^export\s*/,"",$1);
+        val_1=substr($2,0,1);
+        if(length($2) == 0)
+        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
+else
+        cfg=cfg"[\""$1"\"]""="$2",\n";
+        
 }
 END{print cfg"}"}' >$ROOT_DIR/src/env.lua
+
 	fi
+
 }
 function updateConfigs() {
 	echo "ROOT_DIR:$ROOT_DIR"

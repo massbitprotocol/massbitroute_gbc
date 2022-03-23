@@ -333,6 +333,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
                 entry = string.gsub(entry, "_GBC_CORE_ROOT_", ROOT_DIR)
                 entry = string.gsub(entry, "_SITE_ROOT_", site_path)
                 entry = string.gsub(entry, "_APP_ROOT_", path)
+                entry = _replace_env(entry)
                 io.writefile(varEntryPath, entry)
                 includes[#includes + 1] = string.format("        include %s;", varEntryPath)
 
