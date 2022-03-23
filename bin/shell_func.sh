@@ -53,8 +53,12 @@ function loadEnv() {
 		cat $_file | grep -v "^#" | awk -F'=' 'BEGIN{cfg="return {\n"}
 {
 	sub(/^export\s*/,"",$1);
-
+if(subtr($2, 0,1) == '\"') {
+        cfg=cfg"[\""$1"\"]""=$2",\n";
+} 
+else{
         cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
+}
 
 }
 END{print cfg"}"}' >$ROOT_DIR/src/env.lua
