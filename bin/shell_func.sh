@@ -50,8 +50,8 @@ function loadEnv() {
 		source $_file
 
 		mkdir -p $ROOT_DIR/src
-		cat $_file | grep -v "^#" | awk -F'='
-'BEGIN{cfg="return {\n"}
+		cat $_file | grep -v "^#" | \
+		    awk -F'=' 'BEGIN{cfg="return {\n"}
 {
 	sub(/^export\s*/,"",$1);
 	val=$2;
