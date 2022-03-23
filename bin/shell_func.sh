@@ -50,7 +50,7 @@ function loadEnv() {
 		source $_file
 
 		mkdir -p $ROOT_DIR/src
-		cat $_file | grep -v "^#" | awk -F'=' 'BEGIN{cfg="return {\n"}{sub(/^export\s*/,"",$1);cfg=cfg"[\""$1"\"]""=\""$2"\",\n"}END{print cfg"}"}' >$ROOT_DIR/src/env.lua
+		cat $_file | grep -v "^#" | awk -F'=' 'BEGIN{cfg="return {\n"}{sub(/^export\s*/,"",$1);cfg=cfg"[\""$1"\"]""="$2",\n"}END{print cfg"}"}' >$ROOT_DIR/src/env.lua
 	fi
 }
 function updateConfigs() {
