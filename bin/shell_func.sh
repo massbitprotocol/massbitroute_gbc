@@ -50,18 +50,13 @@ function loadEnv() {
 		source $_file
 
 		mkdir -p $ROOT_DIR/src
-		cat $_file | grep -v "^#" | \
-		    awk -F'=' 'BEGIN{cfg="return {\n"}
+		cat $_file | grep -v "^#" |
+			awk -F'=' 'BEGIN{cfg="return {\n"}
 {
 	sub(/^export\s*/,"",$1);
 	val=$2;
 	val_1=substr(val,0,1);
 	print val,val_1;
-	# if(length(val) == 0 || val_1 == "\'" || val_1 == "\"") {
-	# cfg=cfg"[\""$1"\"]""=val",\n";    
-       	# } else {
-        # cfg=cfg"[\""$1"\"]""=\""val"\",\n" ;
-#	}
 }
 END{print cfg"}"}' >$ROOT_DIR/src/env.lua
 	fi
