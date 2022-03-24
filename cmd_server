@@ -14,6 +14,12 @@ install_libs)
 	done
 	exit 0
 	;;
+
+_updateconf)
+    updateConfigs
+    exit 0
+    ;;
+
 _update)
 	updateConfigs
 	$ROOT_DIR/bin/openresty/nginx/sbin/nginx -c $ROOT_DIR/tmp/nginx.conf -s reload
