@@ -75,8 +75,10 @@ end
 -- init
 
 package.path =
-    ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
-package.cpath = ROOT_DIR .. "/bin/openresty/lualib/?.so;" .. ROOT_DIR .. "/src/?.so;" .. package.cpath
+   ROOT_DIR .. "/src/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
+
+package.cpath = ROOT_DIR .. "/bin/openresty/lualib/?.so;" .. ROOT_DIR .. "/src/?.so;" ..
+   ROOT_DIR .. "/gbc/src/?.so;"  .. ROOT_DIR .. "/gbc/lib/?.so;"  .. package.cpath
 
 require("framework.init")
 
@@ -489,6 +491,7 @@ _updateNginxConfig = function()
     print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup)
 
+    print("ROOT_DIR:" .. ROOT_DIR)
     local _pkg_path = _getValue(_sites_config, "lua_package_path")
     if not _pkg_path then
         _pkg_path = ""
@@ -497,6 +500,12 @@ _updateNginxConfig = function()
     if not _pkg_cpath then
         _pkg_cpath = ""
     end
+
+    _pkg_path = _pkg_path  .. string.format("%s/?.lua;%s/lib/?.lua;%s/src/?.lua", ROOT_DIR, ROOT_DIR, ROOT_DIR)
+    _pkg_cpath = _pkg_cpath   .. string.format("%s/?.so;%s/lib/?.so;%s/src/?.so", ROOT_DIR, ROOT_DIR, ROOT_DIR)
+
+    -- print("_pkg_path:" .. _pkg_path)
+    -- print("_pkg_cpath:" .. _pkg_cpath)
     local _sites = _getValue(_sites_config, "sites")
     local includes_path = {_pkg_path}
     local includes_cpath = {_pkg_cpath}
@@ -571,6 +580,7 @@ _updateNginxConfig = function()
             __site_path.package_path = string.gsub(__site_path.package_path, "_SITE_ROOT_", _site_path)
 
             __site_path.package_cpath = string.gsub(__site_path.package_cpath, "_SITE_ROOT_", _site_path)
+	    -- print("package_path:" .. __site_path.package_path)
             includes_path[#includes_path + 1] = __site_path.package_path
             -- string.format("%s/?.lua;%s/lib/?.lua;%s/src/?.lua", _site_path, _site_path, _site_path)
             includes_cpath[#includes_cpath + 1] = __site_path.package_cpath
