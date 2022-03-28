@@ -44,12 +44,17 @@ local LUA_CPATH = args[4]
 
 
 package.path = LUA_PATH.. ';' ..
+   ROOT_DIR .. '/src/?.lua;' ..
    ROOT_DIR .. '/gbc/src/?.lua;' ..
    -- ROOT_DIR .. '/gbc/lib/?.lua;' ..
    -- ROOT_DIR .. '/gbc/lib/share/lua/5.1/?.lua;' ..
    ROOT_DIR .. '/bin/openresty/lualib/?.lua;' ..
    package.path
+
+
+
 package.cpath = LUA_CPATH .. ';' ..
+   ROOT_DIR .. '/src/?.so;' ..
    ROOT_DIR .. '/gbc/src/?.so;' ..
    -- ROOT_DIR .. '/gbc/lib/?.so;' ..
    -- ROOT_DIR .. '/gbc/lib/lib/lua/5.1/?.so;' ..
