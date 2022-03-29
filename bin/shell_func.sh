@@ -35,22 +35,26 @@ SED_BIN='sed -i'
 
 function loadEnv() {
 	ROOT_DIR=$1
-	if [ -f "$ROOT_DIR/.env" ]; then
-		source $ROOT_DIR/.env
-		_file=$ROOT_DIR/.env
-		if [ -z "$MBR_ENV" ]; then
-			if [ -f "$ROOT_DIR/vars/ENV" ]; then
-				export MBR_ENV=$(cat "$ROOT_DIR/vars/ENV")
-			fi
+	if [ -n "$MBR_ENV" ]; then
+		if [ -f "$ROOT_DIR/.env" ]; then
+			source $ROOT_DIR/.env
 		fi
+	fi
 
-		if [ -n "$MBR_ENV" ]; then
-			_file=$ROOT_DIR/.env.$MBR_ENV
+	if [ -z "$MBR_ENV" ]; then
+		if [ -f "$ROOT_DIR/vars/MBR_ENV" ]; then
+			export MBR_ENV=$(cat "$ROOT_DIR/vars/MBR_ENV")
 		fi
-		source $_file
+	fi
 
-		mkdir -p $ROOT_DIR/src
-		cat $_file | grep -v "^#" | awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
+	if [ -n "$MBR_ENV" ]; then
+		_file="$ROOT_DIR/.env.$MBR_ENV"
+
+		if [ -f "$_file " ]; then
+			source $_file
+
+			mkdir -p $ROOT_DIR/src
+			cat $_file | grep -v "^#" | awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
 {
         sub(/^export\s*/,"",$1);
         if(length($2) == 0)
@@ -66,8 +70,8 @@ else {
 }
 END{print cfg"}"}' >$ROOT_DIR/src/env.lua
 
+		fi
 	fi
-
 }
 function updateConfigs() {
 	echo "ROOT_DIR:$ROOT_DIR"
