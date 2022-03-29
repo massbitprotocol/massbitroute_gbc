@@ -26,6 +26,7 @@ if not ROOT_DIR then
     os.exit(1)
 end
 
+
 -- globals
 
 LUA_BIN = ROOT_DIR .. "/bin/openresty/luajit/bin/luajit"
@@ -80,6 +81,7 @@ package.path =
 package.cpath = ROOT_DIR .. "/bin/openresty/lualib/?.so;" .. ROOT_DIR .. "/src/?.so;" ..
    ROOT_DIR .. "/gbc/src/?.so;"  .. ROOT_DIR .. "/gbc/lib/?.so;"  .. package.cpath
 
+local inspect = require "inspect"
 require("framework.init")
 
 if tostring(DEBUG) ~= "0" then
@@ -570,6 +572,7 @@ _updateNginxConfig = function()
             local varSiteRtmpPath = string.format("%s/site_rtmp_%s.conf", TMP_DIR, _site_name)
             local varSiteStreamPath = string.format("%s/site_stream_%s.conf", TMP_DIR, _site_name)
 
+	    print(inspect(__site_path))
             if not __site_path.package_path then
                 __site_path.package_path = ""
             end
@@ -592,14 +595,14 @@ _updateNginxConfig = function()
             --local site_opt = _checkConfig(_site_path .. "/config.lua")
             _updateAppConfig(_site_name, _site_path, idx)
             idx = idx + 1
-            local site_opt = _checkConfig(_site_path .. "/config.lua")
+            -- local site_opt = _checkConfig(_site_path .. "/config.lua")
 
             -- if io.exists(_site_path .. "/apps/config.ld") then
             --     print("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
             --     os.execute("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
             -- end
 
-            local apps = _getValue(site_opt, "apps")
+            -- local apps = _getValue(site_opt, "apps")
         -- for _app_name, _app_path in pairs(apps) do
         --     local _app_full_path = _site_path .. "/" .. _app_path
         --     print(_app_full_path)
@@ -612,8 +615,10 @@ _updateNginxConfig = function()
         end
     end
 
-    includes_path = table.concat(includes_path, "")
-    includes_cpath = table.concat(includes_cpath, "")
+    includes_path = table.concat(includes_path, ";")
+    print("includes_path:" .. includes_path)
+    includes_cpath = table.concat(includes_cpath, ";")
+    print("includes_cpath:" .. includes_cpath)
     includes_site = "\n" .. table.concat(includes_site, "\n")
     includes_rtmp = "\n" .. table.concat(includes_rtmp, "\n")
     includes_stream = "\n" .. table.concat(includes_stream, "\n")
