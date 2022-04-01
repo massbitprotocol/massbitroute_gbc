@@ -1,4 +1,5 @@
 #!/bin/bash
+
 declare -i DEBUG=0
 ROOT_DIR=$(cd "$(dirname $0)" && pwd)
 
