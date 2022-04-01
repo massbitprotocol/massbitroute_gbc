@@ -69,8 +69,16 @@ loadEnv() {
 			echo "export $k=${!k}"
 		done >${tmp}.1
 		cat ${tmp}.1
-		mv ${tmp}.1 $ROOT_DIR/.env_raw
+		# mv ${tmp}.1 $ROOT_DIR/.env_raw
 
+		awk -F'=' -v q1="'" -v q2='"' '
+		{
+		        val_1=substr($2,0,1);
+		        if(val_1 == q1 || val_1 == q2)
+		        cfg=cfg"$1=$2"\n";
+		        else
+		        cfg=cfg"$1=\""$2"\"\n";	
+		}' ${tmp}.1 >$ROOT_DIR/.env_raw
 		awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
 		{
 		        sub(/^export\s*/,"",$1);
