@@ -68,7 +68,7 @@ loadEnv() {
 			if [ -z "$k" ]; then continue; fi
 			echo "export $k=${!k}"
 		done >${tmp}.1
-		cat ${tmp}.1
+		# cat ${tmp}.1
 		# mv ${tmp}.1 $ROOT_DIR/.env_raw
 
 		awk -F'=' -v q1="'" -v q2='"' '
