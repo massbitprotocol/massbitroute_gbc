@@ -62,7 +62,7 @@ loadEnv() {
 			echo
 		done | awk "NF > 0 && !/^#/" >>$tmp
 		source $tmp
-		cat $tmp
+		# cat $tmp
 		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
 			#	echo "export $k=$((k))"
 			if [ -z "$k" ]; then continue; fi
