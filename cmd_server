@@ -16,6 +16,10 @@ install_libs)
 	exit 0
 	;;
 
+_env)
+	exit 0
+	;;
+
 _updateconf)
 	updateConfigs
 	exit 0
