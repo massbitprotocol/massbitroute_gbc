@@ -12,10 +12,9 @@ function showHelp() {
 
 ROOT_DIR=$(cd "$(dirname $0)" && pwd)
 
-loadEnv $ROOT_DIR
-
 mkdir -p $ROOT_DIR/logs/nginx $ROOT_DIR/db $ROOT_DIR/tmp
 source $ROOT_DIR/gbc/bin/shell_func.sh
+loadEnv $ROOT_DIR
 
 if [ $? -ne 0 ]; then
 	echo "Terminating..." >&2

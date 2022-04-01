@@ -33,9 +33,10 @@ VAR_SUPERVISORD_CONF_PATH=$TMP_DIR/supervisord.conf
 SED_BIN='sed -i'
 #fi
 
-function loadEnv() {
+loadEnv() {
 	ROOT_DIR=$1
-	if [ -n "$MBR_ENV" ]; then
+	cd $ROOT_DIR
+	if [ -z "$MBR_ENV" ]; then
 		if [ -f "$ROOT_DIR/.env" ]; then
 			source $ROOT_DIR/.env
 		fi
@@ -49,30 +50,44 @@ function loadEnv() {
 
 	if [ -n "$MBR_ENV" ]; then
 		_file="$ROOT_DIR/.env.$MBR_ENV"
+		if [ ! -f "$_file" ]; then return; fi
+		mkdir -p $ROOT_DIR/src
 
-		if [ -f "$_file " ]; then
-			source $_file
+		tmp=$(mktemp)
+		echo "export MBR_ENV=$MBR_ENV" >$tmp
+		cat $_file | awk 'NF > 0 && !/^\s*source/ && !/^\s*#/' >>$tmp
+		# echo >>$tmp
+		cat $_file | awk '/^\s*source/ {print $2}' | while read f; do cat $f; done | awk "NF > 0 && !/^#/" >>$tmp
+		source $tmp
+		cat $tmp
+		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
+			#	echo "export $k=$((k))"
+			if [ -z "$k" ]; then continue; fi
+			echo "export $k=${!k}"
+		done >${tmp}.1
+		cat ${tmp}.1
+		mv ${tmp}.1 $ROOT_DIR/.env_raw
 
-			mkdir -p $ROOT_DIR/src
-			cat $_file | grep -v "^#" | awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
-{
-        sub(/^export\s*/,"",$1);
-        if(length($2) == 0)
-        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
-else {
-        val_1=substr($2,0,1);
-        if(val_1 == q1 || val_1 == q2)
-        cfg=cfg"[\""$1"\"]""="$2",\n";
-        else
-        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
-}
-        
-}
-END{print cfg"}"}' >$ROOT_DIR/src/env.lua
+		awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
+		{
+		        sub(/^export\s*/,"",$1);
+		        if(length($2) == 0)
+		        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
+		else {
+		        val_1=substr($2,0,1);
+		        if(val_1 == q1 || val_1 == q2)
+		        cfg=cfg"[\""$1"\"]""="$2",\n";
+		        else
+		        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
+		}
 
-		fi
+		}
+		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/env.lua
+
+		rm ${tmp}*
 	fi
 }
+
 function updateConfigs() {
 	echo "ROOT_DIR:$ROOT_DIR"
 	if [ -z "$BIND_ADDRESS" ]; then BIND_ADDRESS="0.0.0.0"; fi

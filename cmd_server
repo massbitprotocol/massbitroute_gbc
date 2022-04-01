@@ -3,7 +3,8 @@ declare -i DEBUG=0
 ROOT_DIR=$(cd "$(dirname $0)" && pwd)
 
 source $ROOT_DIR/bin/shell_func.sh
-
+# source $ROOT_DIR/scripts/base.sh
+cd $ROOT_DIR
 loadEnv $ROOT_DIR
 
 case "$1" in
@@ -16,9 +17,9 @@ install_libs)
 	;;
 
 _updateconf)
-    updateConfigs
-    exit 0
-    ;;
+	updateConfigs
+	exit 0
+	;;
 
 _update)
 	updateConfigs
