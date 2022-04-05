@@ -15,7 +15,7 @@ all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE OR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
@@ -25,7 +25,6 @@ if not ROOT_DIR then
     print("Not set ROOT_DIR for Lua, exit.")
     os.exit(1)
 end
-
 
 -- globals
 
@@ -54,6 +53,7 @@ local _getValue, _checkVarConfig, _checkAppKeys
 local _updateCoreConfig, _updateNginxConfig
 local _updateRedisConfig, _updateSupervisordConfig, _replace_env
 
+local supervisors_once = {}
 local _SUPERVISOR_WORKER_PROG_TMPL =
     [[
 [program:worker-_APP_NAME_]
@@ -76,10 +76,14 @@ end
 -- init
 
 package.path =
-   ROOT_DIR .. "/src/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
+    ROOT_DIR ..
+    "/bin/openresty/lualib/?.lua;" ..
+        ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
 
-package.cpath = ROOT_DIR .. "/bin/openresty/lualib/?.so;" .. ROOT_DIR .. "/src/?.so;" ..
-   ROOT_DIR .. "/gbc/src/?.so;"  .. ROOT_DIR .. "/gbc/lib/?.so;"  .. package.cpath
+package.cpath =
+    ROOT_DIR ..
+    "/bin/openresty/lualib/?.so;" ..
+        ROOT_DIR .. "/gbc/lib/?.so;" .. ROOT_DIR .. "/gbc/src/?.so;" .. ROOT_DIR .. "/src/?.so;" .. package.cpath
 
 local inspect = require "inspect"
 require("framework.init")
@@ -195,13 +199,13 @@ end
 -- end
 
 local _updateAppConfig = function(site_name, site_path, idx)
-    print(site_name)
-    print(site_path)
+    print("[====updateAppConfig==")
+    print("Site:" .. site_name .. " -> Path:" .. site_path)
     local site_opt = _checkConfig(site_path .. "/config.lua")
     local site_conf = site_path .. "/http.conf"
     local site_rtmp_conf = site_path .. "/rtmp.conf"
     local site_stream_conf = site_path .. "/stream.conf"
-    print("stream_conf:" .. site_stream_conf)
+    -- print("stream_conf:" .. site_stream_conf)
     local has_http = true
     local has_rtmp = true
     local has_stream = true
@@ -226,7 +230,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
         contents_sup = string.gsub(contents_sup, ";_WORKERS_", site_opt.supervisor .. "\n;_WORKERS_")
         contents_sup = string.gsub(contents_sup, "_GBC_CORE_ROOT_", ROOT_DIR)
         contents_sup = string.gsub(contents_sup, "_SITE_ROOT_", site_path)
-        print("site_path:" .. site_path)
+    -- print("site_path:" .. site_path)
     -- print(contents_sup)
     end
 
@@ -284,31 +288,48 @@ local _updateAppConfig = function(site_name, site_path, idx)
         contents_app = string.gsub(contents_app, "_GBC_CORE_ROOT_", ROOT_DIR)
         contents_app = string.gsub(contents_app, "_SITE_ROOT_", site_path)
 
-        local templates = _getValue(site_opt, "templates")
+        -- local templates = _getValue(site_opt, "templates")
 
-        if templates ~= nil then
-            print("templates:" .. json.encode(templates))
-            if templates ~= nil then
-                for templ_name, templ_path in pairs(templates) do
-                    templ_name = string.gsub(templ_name, "_SITE_ROOT_", site_path)
-                    templ_name = string.gsub(templ_name, "_GBC_CORE_ROOT_", ROOT_DIR)
+        -- if templates ~= nil then
+        --     print("templates:" .. json.encode(templates))
+        --     if templates ~= nil then
+        --         for templ_name, templ_path in pairs(templates) do
+        --             templ_name = string.gsub(templ_name, "_SITE_ROOT_", site_path)
+        --             templ_name = string.gsub(templ_name, "_GBC_CORE_ROOT_", ROOT_DIR)
 
-                    templ_path = string.gsub(templ_path, "_SITE_ROOT_", site_path)
-                    templ_path = string.gsub(templ_path, "_GBC_CORE_ROOT_", ROOT_DIR)
-                    print(templ_name)
-                    print(templ_path)
-                    if io.exists(templ_path) then
-                        local cmd =
-                            ROOT_DIR ..
-                            "/bin/bin/lemplate --compile " .. templ_path .. "/*.tt2 >" .. templ_name .. ".lua"
-                        print("cmd:" .. cmd)
-                        os.execute(cmd)
-                    end
-                end
-            end
-        end
+        --             templ_path = string.gsub(templ_path, "_SITE_ROOT_", site_path)
+        --             templ_path = string.gsub(templ_path, "_GBC_CORE_ROOT_", ROOT_DIR)
+        --             print(templ_name)
+        --             print(templ_path)
+        --             if io.exists(templ_path) then
+        --                 local cmd =
+        --                     ROOT_DIR ..
+        --                     "/bin/bin/lemplate --compile " .. templ_path .. "/*.tt2 >" .. templ_name .. ".lua"
+        --                 print("cmd:" .. cmd)
+        --                 os.execute(cmd)
+        --             end
+        --         end
+        --     end
+        -- end
 
         local apps = _getValue(site_opt, "apps")
+        local _supervisors = _getValue(site_opt, "supervisors")
+        print("supervisors:" .. inspect(_supervisors))
+        if _supervisors and type(_supervisors) == "table" then
+            local _tmp =
+                table.map(
+                _supervisors,
+                function(_content)
+                    _content = string.gsub(_content, "_GBC_CORE_ROOT_", ROOT_DIR)
+                    _content = string.gsub(_content, "_SITE_ROOT_", site_path)
+                    return _content
+                end
+            )
+            print(inspect(_tmp))
+
+            table.merge(supervisors_once, _tmp)
+        end
+
         local includes = {}
 
         local names = {}
@@ -330,7 +351,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
             local path = site_path .. "/" .. _path
             local entryPath = string.format("%s/conf/app_entry.conf", path)
             local varEntryPath = string.format("%s/app_%s_entry.conf", TMP_DIR, site_name .. "_" .. name)
-            print("entryPath:" .. entryPath)
+            print("=> entryPath:" .. entryPath)
             if io.exists(entryPath) then
                 names[#names + 1] = name
                 local entry = io.readfile(entryPath)
@@ -375,7 +396,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
         for name, _path in pairs(apps) do
             local path = site_path .. "/" .. _path
             local prog = string.gsub(_SUPERVISOR_WORKER_PROG_TMPL, "_GBC_CORE_ROOT_", ROOT_DIR)
-            print("path:" .. path)
+            -- print("path:" .. path)
             -- get numOfJobWorkers
             local appConfig = appConfigs[path]
             --print(appConfig.app.supervisor)
@@ -391,33 +412,33 @@ local _updateAppConfig = function(site_name, site_path, idx)
             end
 
             --print(appConfig.app.templates)
-            templates = appConfig and appConfig.app and appConfig.app.templates
+            -- templates = appConfig and appConfig.app and appConfig.app.templates
 
-            if templates then
-                for templ_name, templ_path in pairs(templates) do
-                    templ_name = string.gsub(templ_name, "_APP_ROOT_", path)
-                    templ_name = string.gsub(templ_name, "_SITE_ROOT_", site_path)
-                    templ_name = string.gsub(templ_name, "_APP_NAME_", site_name .. "-" .. name)
-                    templ_name = string.gsub(templ_name, "_GBC_CORE_ROOT_", ROOT_DIR)
+            -- if templates then
+            --     for templ_name, templ_path in pairs(templates) do
+            --         templ_name = string.gsub(templ_name, "_APP_ROOT_", path)
+            --         templ_name = string.gsub(templ_name, "_SITE_ROOT_", site_path)
+            --         templ_name = string.gsub(templ_name, "_APP_NAME_", site_name .. "-" .. name)
+            --         templ_name = string.gsub(templ_name, "_GBC_CORE_ROOT_", ROOT_DIR)
 
-                    templ_path = string.gsub(templ_path, "_APP_ROOT_", path)
-                    templ_path = string.gsub(templ_path, "_SITE_ROOT_", site_path)
-                    templ_path = string.gsub(templ_path, "_APP_NAME_", site_name .. "-" .. name)
-                    templ_path = string.gsub(templ_path, "_GBC_CORE_ROOT_", ROOT_DIR)
-                    print(templ_name)
-                    print(templ_path)
-                    if io.exists(templ_path) then
-                        local cmd =
-                            ROOT_DIR ..
-                            "/bin/bin/lemplate --compile " .. templ_path .. "/*.tt2 >" .. templ_name .. ".lua"
-                        print(cmd)
-                        os.execute(cmd)
-                    --                        cmd = ROOT_DIR .. "/bin/openresty/bin/jemplate --compile " .. templ_path .. "/*.html >" .. templ_path .. "/" .. templ_name .. ".js"
-                    --                        print(cmd)
-                    --                        os.execute(cmd)
-                    end
-                end
-            end
+            --         templ_path = string.gsub(templ_path, "_APP_ROOT_", path)
+            --         templ_path = string.gsub(templ_path, "_SITE_ROOT_", site_path)
+            --         templ_path = string.gsub(templ_path, "_APP_NAME_", site_name .. "-" .. name)
+            --         templ_path = string.gsub(templ_path, "_GBC_CORE_ROOT_", ROOT_DIR)
+            --         print(templ_name)
+            --         print(templ_path)
+            --         if io.exists(templ_path) then
+            --             local cmd =
+            --                 ROOT_DIR ..
+            --                 "/bin/bin/lemplate --compile " .. templ_path .. "/*.tt2 >" .. templ_name .. ".lua"
+            --             print(cmd)
+            --             os.execute(cmd)
+            --         --                        cmd = ROOT_DIR .. "/bin/openresty/bin/jemplate --compile " .. templ_path .. "/*.html >" .. templ_path .. "/" .. templ_name .. ".js"
+            --         --                        print(cmd)
+            --         --                        os.execute(cmd)
+            --         end
+            --     end
+            -- end
 
             prog = string.gsub(prog, "_SITE_ROOT_", site_path)
             prog = string.gsub(prog, "_APP_ROOT_", path)
@@ -440,18 +461,19 @@ local _updateAppConfig = function(site_name, site_path, idx)
     --end
 end
 _replace_env = function(contents)
-    print("VAR_CONF_ENV:" .. VAR_CONF_ENV)
+    -- print("VAR_CONF_ENV:" .. VAR_CONF_ENV)
     if io.exists(VAR_CONF_ENV) then
         local _env = require("env")
-        print(_env["MBR_API"])
+        -- print(_env["MBR_API"])
         for _k, _v in pairs(_env) do
-            print("replace " .. "__ENV_" .. _k .. " to " .. _v)
+            -- print("replace " .. "__ENV_" .. _k .. " to " .. _v)
             contents = string.gsub(contents, "__ENV_" .. _k .. "__", _v)
         end
     end
     return contents
 end
 _updateNginxConfig = function()
+    print("updateNginxConfig")
     local config = _checkVarConfig()
 
     local contents = io.readfile(NGINX_CONF_PATH)
@@ -475,25 +497,34 @@ _updateNginxConfig = function()
 
     -- copy app_entry.conf to tmp/
     local SITES_DIR = _getValue(config, "SITES_DIR")
-    print(SITES_DIR)
+    -- print(SITES_DIR)
     local _sites_config = _checkConfig(SITES_DIR .. "/config.lua")
     local _modules = _getValue(_sites_config, "modules")
     if _modules == nil then
         _modules = ""
     end
-    print(_modules)
+    print("Modules:" .. _modules)
     local contents_sup = io.readfile(SUPERVISORD_CONF_PATH)
 
     local _supervisor = _getValue(_sites_config, "supervisor")
+    print("supervisor:" .. inspect(_supervisor))
 
-    contents_sup = string.gsub(contents_sup, ";_WORKERS_", _supervisor .. "\n;_WORKERS_")
+    local _supervisors = _getValue(_sites_config, "supervisors")
+    print("supervisors:" .. inspect(_supervisors))
+    if _supervisors and type(_supervisors) == "table" then
+        table.merge(supervisors_once, _supervisors)
+    end
+
+    if _supervisor then
+        contents_sup = string.gsub(contents_sup, ";_WORKERS_", _supervisor .. "\n;_WORKERS_")
+    end
     contents_sup = string.gsub(contents_sup, "_GBC_CORE_ROOT_", ROOT_DIR)
 
     -- _replace_env(VAR_SUPERVISORD_CONF_PATH)
     print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup)
 
-    print("ROOT_DIR:" .. ROOT_DIR)
+    -- print("ROOT_DIR:" .. ROOT_DIR)
     local _pkg_path = _getValue(_sites_config, "lua_package_path")
     if not _pkg_path then
         _pkg_path = ""
@@ -503,8 +534,8 @@ _updateNginxConfig = function()
         _pkg_cpath = ""
     end
 
-    _pkg_path = _pkg_path  .. string.format("%s/?.lua;%s/lib/?.lua;%s/src/?.lua", ROOT_DIR, ROOT_DIR, ROOT_DIR)
-    _pkg_cpath = _pkg_cpath   .. string.format("%s/?.so;%s/lib/?.so;%s/src/?.so", ROOT_DIR, ROOT_DIR, ROOT_DIR)
+    _pkg_path = _pkg_path .. string.format("%s/lib/?.lua;%s/src/?.lua", ROOT_DIR, ROOT_DIR)
+    _pkg_cpath = _pkg_cpath .. string.format("%s/lib/?.so;%s/src/?.so", ROOT_DIR, ROOT_DIR)
 
     -- print("_pkg_path:" .. _pkg_path)
     -- print("_pkg_cpath:" .. _pkg_cpath)
@@ -543,7 +574,7 @@ _updateNginxConfig = function()
         end
 
         -- print("cont:")
-        print(_continue)
+        -- print(_continue)
 
         if _continue then
             print(__site_path.luainit)
@@ -572,7 +603,7 @@ _updateNginxConfig = function()
             local varSiteRtmpPath = string.format("%s/site_rtmp_%s.conf", TMP_DIR, _site_name)
             local varSiteStreamPath = string.format("%s/site_stream_%s.conf", TMP_DIR, _site_name)
 
-	    print(inspect(__site_path))
+            -- print(inspect(__site_path))
             if not __site_path.package_path then
                 __site_path.package_path = ""
             end
@@ -583,10 +614,31 @@ _updateNginxConfig = function()
             __site_path.package_path = string.gsub(__site_path.package_path, "_SITE_ROOT_", _site_path)
 
             __site_path.package_cpath = string.gsub(__site_path.package_cpath, "_SITE_ROOT_", _site_path)
-	    -- print("package_path:" .. __site_path.package_path)
-            includes_path[#includes_path + 1] = __site_path.package_path
+
+            __site_path.package_path =
+                __site_path.package_path .. string.format("%s/lib/?.lua;%s/src/?.lua", _site_path, _site_path)
+            -- string.format("%s/lib/?.lua;%s/src/?.lua;%s/?.lua", _site_path, _site_path, _site_path)
+            __site_path.package_cpath =
+                __site_path.package_cpath ..
+                string.format("%s/lib/?.so;%s/src/?.so", _site_path, _site_path, _site_path)
+            -- string.format("%s/lib/?.so;%s/src/?.so;%s/?.so", _site_path, _site_path, _site_path)
+            -- print("package_path:" .. __site_path.package_path)
+            -- print("package_path size:" .. string.len(__site_path.package_path))
+            if __site_path.package_path then
+                __site_path.package_path = string.trim(__site_path.package_path)
+                if string.len(__site_path.package_path) > 0 then
+                    includes_path[#includes_path + 1] = __site_path.package_path
+                end
+            end
+
             -- string.format("%s/?.lua;%s/lib/?.lua;%s/src/?.lua", _site_path, _site_path, _site_path)
-            includes_cpath[#includes_cpath + 1] = __site_path.package_cpath
+            if __site_path.package_cpath then
+                __site_path.package_cpath = string.trim(__site_path.package_cpath)
+                if string.len(__site_path.package_cpath) > 0 then
+                    includes_cpath[#includes_cpath + 1] = __site_path.package_cpath
+                end
+            end
+
             -- string.format("%s/?.so;%s/lib/?.so;%s/src/?.so", _site_path, _site_path, _site_path)
             includes_site[#includes_site + 1] = string.format("        include %s;", varSitePath)
             includes_rtmp[#includes_rtmp + 1] = string.format("        include %s;", varSiteRtmpPath)
@@ -595,14 +647,14 @@ _updateNginxConfig = function()
             --local site_opt = _checkConfig(_site_path .. "/config.lua")
             _updateAppConfig(_site_name, _site_path, idx)
             idx = idx + 1
-            -- local site_opt = _checkConfig(_site_path .. "/config.lua")
+        -- local site_opt = _checkConfig(_site_path .. "/config.lua")
 
-            -- if io.exists(_site_path .. "/apps/config.ld") then
-            --     print("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
-            --     os.execute("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
-            -- end
+        -- if io.exists(_site_path .. "/apps/config.ld") then
+        --     print("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
+        --     os.execute("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
+        -- end
 
-            -- local apps = _getValue(site_opt, "apps")
+        -- local apps = _getValue(site_opt, "apps")
         -- for _app_name, _app_path in pairs(apps) do
         --     local _app_full_path = _site_path .. "/" .. _app_path
         --     print(_app_full_path)
@@ -616,9 +668,9 @@ _updateNginxConfig = function()
     end
 
     includes_path = table.concat(includes_path, ";")
-    print("includes_path:" .. includes_path)
+    -- print("includes_path:" .. includes_path)
     includes_cpath = table.concat(includes_cpath, ";")
-    print("includes_cpath:" .. includes_cpath)
+    -- print("includes_cpath:" .. includes_cpath)
     includes_site = "\n" .. table.concat(includes_site, "\n")
     includes_rtmp = "\n" .. table.concat(includes_rtmp, "\n")
     includes_stream = "\n" .. table.concat(includes_stream, "\n")
@@ -669,6 +721,23 @@ _updateNginxConfig = function()
     contents = _replace_env(contents)
     print("write_file:" .. VAR_NGINX_CONF_PATH)
     io.writefile(VAR_NGINX_CONF_PATH, contents)
+
+    -- print("supervisors_once:" .. inspect(supervisors_once))
+
+    local contents_sup_once = io.readfile(VAR_SUPERVISORD_CONF_PATH)
+
+    print("contents_sup_once:" .. contents_sup_once)
+    local _supervisor_once = table.concat(table.values(supervisors_once), "\n")
+    if _supervisor_once then
+        contents_sup_once = string.gsub(contents_sup_once, ";_WORKERS_", _supervisor_once .. "\n;_WORKERS_")
+    end
+
+    contents_sup_once = string.gsub(contents_sup_once, "_GBC_CORE_ROOT_", ROOT_DIR)
+
+    -- print("contents_sup_once:" .. contents_sup_once)
+    print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
+    io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup_once)
+
     return includes_path, includes_cpath
 end
 
