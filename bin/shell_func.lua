@@ -500,6 +500,7 @@ _updateNginxConfig = function()
     -- print(SITES_DIR)
     local _sites_config = _checkConfig(SITES_DIR .. "/config.lua")
     local _modules = _getValue(_sites_config, "modules")
+    local _module_paths = {}
     if _modules == nil then
         _modules = ""
     end
@@ -577,7 +578,10 @@ _updateNginxConfig = function()
         -- print(_continue)
 
         if _continue then
+            print("site_path:" .. _site_path)
+            _module_paths[#_module_paths + 1] = _site_path
             print(__site_path.luainit)
+
             if __site_path.luainit then
                 includes_luainit[#includes_luainit + 1] = __site_path.luainit
             end
@@ -738,6 +742,9 @@ _updateNginxConfig = function()
     print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup_once)
 
+    -- print(inspect(_module_paths))
+
+    io.writefile(ROOT_DIR .. "/.module_paths", table.concat(_module_paths, "\n") .. "\n")
     return includes_path, includes_cpath
 end
 
