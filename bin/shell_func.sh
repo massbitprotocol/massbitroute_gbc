@@ -43,6 +43,9 @@ loadEnv() {
 	fi
 
 	if [ -z "$MBR_ENV" ]; then
+		if [ -f "$ROOT_DIR/vars/ENV" ]; then
+			export MBR_ENV=$(cat "$ROOT_DIR/vars/ENV")
+		fi
 		if [ -f "$ROOT_DIR/vars/MBR_ENV" ]; then
 			export MBR_ENV=$(cat "$ROOT_DIR/vars/MBR_ENV")
 		fi
