@@ -58,6 +58,7 @@ loadEnv() {
 
 		tmp=$(mktemp)
 		cat "$ROOT_DIR/.env" >$tmp
+		echo >>$tmp
 		# echo "export MBR_ENV=$MBR_ENV" >$tmp
 		cat $_file | awk 'NF > 0 && !/^\s*source/ && !/^\s*#/' >>$tmp
 		echo >>$tmp
