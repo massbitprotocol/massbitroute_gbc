@@ -67,13 +67,13 @@ loadEnv() {
 			echo
 		done | awk "NF > 0 && !/^#/" >>$tmp
 		source $tmp
-		cat $tmp
+
 		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
 			#	echo "export $k=$((k))"
 			if [ -z "$k" ]; then continue; fi
 			echo "export $k=${!k}"
 		done >${tmp}.1
-		# cat ${tmp}.1
+		cat ${tmp}.1
 		# mv ${tmp}.1 $ROOT_DIR/.env_raw
 
 		awk -F'=' -v q1="'" -v q2='"' '
@@ -88,7 +88,6 @@ loadEnv() {
 		{
 		        sub(/^export\s*/,"",$1);
                 gsub(/ /,"",$1);
-                gsub(/ /,"",$2);
 
 	        if(length($2) == 0)
 		        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
