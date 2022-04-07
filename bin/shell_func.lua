@@ -465,7 +465,7 @@ _replace_env = function(contents)
     if io.exists(VAR_CONF_ENV) then
         local _env = require("env")
         -- print(_env["MBR_API"])
-        if _env and type(_env) == "table" then
+        if _env then
             for _k, _v in pairs(_env) do
                 -- print("replace " .. "__ENV_" .. _k .. " to " .. _v)
                 contents = string.gsub(contents, "__ENV_" .. _k .. "__", _v)
