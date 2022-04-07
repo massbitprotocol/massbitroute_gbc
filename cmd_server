@@ -6,6 +6,7 @@ ROOT_DIR=$(cd "$(dirname $0)" && pwd)
 source $ROOT_DIR/bin/shell_func.sh
 # source $ROOT_DIR/scripts/base.sh
 cd $ROOT_DIR
+mkdir -p $ROOT_DIR/tmp $ROOT_DIR/logs/nginx $ROOT_DIR/logs $ROOT_DIR/db
 loadEnv $ROOT_DIR
 
 case "$1" in
