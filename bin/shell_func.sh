@@ -67,7 +67,7 @@ loadEnv() {
 			echo
 		done | awk "NF > 0 && !/^#/" >>$tmp
 		source $tmp
-		# cat $tmp
+		cat $tmp
 		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
 			#	echo "export $k=$((k))"
 			if [ -z "$k" ]; then continue; fi
@@ -87,7 +87,10 @@ loadEnv() {
 		awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
 		{
 		        sub(/^export\s*/,"",$1);
-		        if(length($2) == 0)
+                gsub(/ /,"",$1);
+                gsub(/ /,"",$2);
+
+	        if(length($2) == 0)
 		        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
 		else {
 		        val_1=substr($2,0,1);
