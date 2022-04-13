@@ -199,8 +199,8 @@ end
 -- end
 
 local _updateAppConfig = function(site_name, site_path, idx)
-    print("[====updateAppConfig==")
-    print("Site:" .. site_name .. " -> Path:" .. site_path)
+    -- print("[====updateAppConfig==")
+    -- print("Site:" .. site_name .. " -> Path:" .. site_path)
     local site_opt = _checkConfig(site_path .. "/config.lua")
     local site_conf = site_path .. "/http.conf"
     local site_rtmp_conf = site_path .. "/rtmp.conf"
@@ -314,7 +314,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
 
         local apps = _getValue(site_opt, "apps")
         local _supervisors = _getValue(site_opt, "supervisors")
-        print("supervisors:" .. inspect(_supervisors))
+        -- print("supervisors:" .. inspect(_supervisors))
         if _supervisors and type(_supervisors) == "table" then
             local _tmp =
                 table.map(
@@ -325,7 +325,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
                     return _content
                 end
             )
-            print(inspect(_tmp))
+            -- print(inspect(_tmp))
 
             table.merge(supervisors_once, _tmp)
         end
@@ -351,7 +351,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
             local path = site_path .. "/" .. _path
             local entryPath = string.format("%s/conf/app_entry.conf", path)
             local varEntryPath = string.format("%s/app_%s_entry.conf", TMP_DIR, site_name .. "_" .. name)
-            print("=> entryPath:" .. entryPath)
+            -- print("=> entryPath:" .. entryPath)
             if io.exists(entryPath) then
                 names[#names + 1] = name
                 local entry = io.readfile(entryPath)
@@ -386,7 +386,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
 
         local _site_file = TMP_DIR .. "/site_http_" .. site_name .. ".conf"
         contents_app = _replace_env(contents_app)
-        print("write file:" .. _site_file)
+        -- print("write file:" .. _site_file)
         io.writefile(_site_file, contents_app)
         local config = _checkVarConfig()
         local appkeys = _checkAppKeys()
