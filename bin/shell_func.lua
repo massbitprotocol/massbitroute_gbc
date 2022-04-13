@@ -744,7 +744,7 @@ _updateNginxConfig = function()
     print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup_once)
 
-    -- print(inspect(_module_paths))
+    print(inspect(_module_paths))
 
     io.writefile(ROOT_DIR .. "/.module_paths", table.concat(_module_paths, "\n") .. "\n")
     return includes_path, includes_cpath
