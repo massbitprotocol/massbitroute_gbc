@@ -582,6 +582,8 @@ _updateNginxConfig = function()
         if _continue then
             print("site_path:" .. _site_path)
             _module_paths[#_module_paths + 1] = _site_path
+            print("module_paths")
+            print(inspect(_module_paths))
             print(__site_path.luainit)
 
             if __site_path.luainit then
@@ -744,6 +746,7 @@ _updateNginxConfig = function()
     print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup_once)
 
+    print("module_paths")
     print(inspect(_module_paths))
 
     io.writefile(ROOT_DIR .. "/.module_paths", table.concat(_module_paths, "\n") .. "\n")
