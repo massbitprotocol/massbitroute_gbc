@@ -117,17 +117,17 @@ _getValue = function(t, key, def)
 end
 
 local _checkConfig = function(cfg)
+    local config
     if not io.exists(cfg) then
+        -- os.exit(1)
         print(string.format("[ERR] Not found file: %s", cfg))
-    -- os.exit(1)
+    else
+        config = dofile(cfg)
+        if type(config) ~= "table" then
+            print(string.format("[ERR] Invalid config file: %s", cfg))
+        -- os.exit(1)
+        end
     end
-
-    local config = dofile(cfg)
-    if type(config) ~= "table" then
-        print(string.format("[ERR] Invalid config file: %s", cfg))
-    -- os.exit(1)
-    end
-
     return config
 end
 
@@ -202,6 +202,9 @@ local _updateAppConfig = function(site_name, site_path, idx)
     -- print("[====updateAppConfig==")
     -- print("Site:" .. site_name .. " -> Path:" .. site_path)
     local site_opt = _checkConfig(site_path .. "/config.lua")
+    if not site_opt then
+        return
+    end
     local site_conf = site_path .. "/http.conf"
     local site_rtmp_conf = site_path .. "/rtmp.conf"
     local site_stream_conf = site_path .. "/stream.conf"
@@ -501,6 +504,9 @@ _updateNginxConfig = function()
     local SITES_DIR = _getValue(config, "SITES_DIR")
     -- print(SITES_DIR)
     local _sites_config = _checkConfig(SITES_DIR .. "/config.lua")
+    if not _sites_config then
+        return
+    end
     local _modules = _getValue(_sites_config, "modules")
     local _module_paths = {}
     if _modules == nil then
