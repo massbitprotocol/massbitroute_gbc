@@ -119,13 +119,13 @@ end
 local _checkConfig = function(cfg)
     if not io.exists(cfg) then
         print(string.format("[ERR] Not found file: %s", cfg))
-        os.exit(1)
+    -- os.exit(1)
     end
 
     local config = dofile(cfg)
     if type(config) ~= "table" then
         print(string.format("[ERR] Invalid config file: %s", cfg))
-        os.exit(1)
+    -- os.exit(1)
     end
 
     return config
