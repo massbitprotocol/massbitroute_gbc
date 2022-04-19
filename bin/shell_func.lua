@@ -123,6 +123,7 @@ local _checkConfig = function(cfg)
         print(string.format("[ERR] Not found file: %s", cfg))
     else
         config = dofile(cfg)
+        -- print("myconfig:" .. inspect(config))
         if type(config) ~= "table" then
             print(string.format("[ERR] Invalid config file: %s", cfg))
         -- os.exit(1)
@@ -138,6 +139,7 @@ _checkVarConfig = function()
     end
 
     local config = dofile(VAR_CONF_PATH)
+    -- print("config:" .. inspect(config))
     if type(config) ~= "table" then
         print(string.format("[ERR] Invalid config file: %s", VAR_CONF_PATH))
         os.exit(1)
@@ -352,6 +354,14 @@ local _updateAppConfig = function(site_name, site_path, idx)
 
         for name, _path in pairs(apps) do
             local path = site_path .. "/" .. _path
+            if string.find(path, "..") then
+                local _abs_path = io.popen("cd '" .. path .. "';pwd", "r"):read("a")
+                _abs_path = _abs_path:gsub("[\n\r]*$", "")
+                if _abs_path then
+                    path = _abs_path
+                end
+            end
+
             local entryPath = string.format("%s/conf/app_entry.conf", path)
             local varEntryPath = string.format("%s/app_%s_entry.conf", TMP_DIR, site_name .. "_" .. name)
             -- print("=> entryPath:" .. entryPath)
@@ -398,6 +408,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
         local workers = {}
         for name, _path in pairs(apps) do
             local path = site_path .. "/" .. _path
+            print("path:" .. path)
             local prog = string.gsub(_SUPERVISOR_WORKER_PROG_TMPL, "_GBC_CORE_ROOT_", ROOT_DIR)
             -- print("path:" .. path)
             -- get numOfJobWorkers
@@ -586,7 +597,15 @@ _updateNginxConfig = function()
         -- print(_continue)
 
         if _continue then
+            -- if string.find(_site_path, "..") then
+            --     local _abs_path = io.popen("realpath '" .. _site_path .. "'", "r"):read("a")
+            --     _abs_path = _abs_path:gsub("[\n\r]*$", "")
+            --     if _abs_path then
+            --         _site_path = _abs_path
+            --     end
+            -- end
             print("site_path:" .. _site_path)
+
             _module_paths[#_module_paths + 1] = _site_path
             print("module_paths")
             print(inspect(_module_paths))
