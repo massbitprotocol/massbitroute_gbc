@@ -64,6 +64,16 @@ redirect_stderr=true
 stdout_logfile=_GBC_CORE_ROOT_/logs/worker-_APP_NAME_.log
 ;;_CUSTOM_SERVICE_
 ]]
+local function _get_absolute_path(_path)
+    if string.find(_path, "..") then
+        local _abs_path = io.popen("cd '" .. _path .. "';pwd", "r"):read("a")
+        _abs_path = _abs_path:gsub("[\n\r]*$", "")
+        if _abs_path then
+            _path = _abs_path
+        end
+    end
+    return _path
+end
 
 function updateConfigs()
     _updateCoreConfig()
@@ -353,14 +363,14 @@ local _updateAppConfig = function(site_name, site_path, idx)
         local index = 1
 
         for name, _path in pairs(apps) do
-            local path = site_path .. "/" .. _path
-            if string.find(path, "..") then
-                local _abs_path = io.popen("cd '" .. path .. "';pwd", "r"):read("a")
-                _abs_path = _abs_path:gsub("[\n\r]*$", "")
-                if _abs_path then
-                    path = _abs_path
-                end
-            end
+            local path = _get_absolute_path(site_path .. "/" .. _path)
+            -- if string.find(path, "..") then
+            --     local _abs_path = io.popen("cd '" .. path .. "';pwd", "r"):read("a")
+            --     _abs_path = _abs_path:gsub("[\n\r]*$", "")
+            --     if _abs_path then
+            --         path = _abs_path
+            --     end
+            -- end
 
             local entryPath = string.format("%s/conf/app_entry.conf", path)
             local varEntryPath = string.format("%s/app_%s_entry.conf", TMP_DIR, site_name .. "_" .. name)
@@ -606,7 +616,8 @@ _updateNginxConfig = function()
             -- end
             print("site_path:" .. _site_path)
 
-            _module_paths[#_module_paths + 1] = _site_path
+            _module_paths[#_module_paths + 1] = _get_absolute_path(_site_path)
+
             print("module_paths")
             print(inspect(_module_paths))
             print(__site_path.luainit)
