@@ -9,13 +9,6 @@ cd $ROOT_DIR
 mkdir -p $ROOT_DIR/tmp $ROOT_DIR/logs/nginx $ROOT_DIR/logs $ROOT_DIR/db
 loadEnv $ROOT_DIR
 
-_tests() {
-	cat $SITE_ROOT/.module_paths | while read _site; do
-		if [ -f "$_site/apps/tests/shells/run_tests" ]; then
-			ROOT_DIR=$SITE_ROOT SITE_ROOT=_site bash $_site/apps/tests/shells/run_tests
-		fi
-	done
-}
 case "$1" in
 install_libs)
 	apt install -y libmaxminddb-dev uuid-dev
@@ -34,7 +27,8 @@ _updateconf)
 	exit 0
 	;;
 _tests)
-	_tests
+	runTests
+	exit $?
 	;;
 _update)
 	updateConfigs

@@ -106,8 +106,17 @@ loadEnv() {
 	fi
 }
 
+function runTests() {
+	cat $ROOT_DIR/.module_paths | while read _site; do
+		_dirtest="$_site/apps/tests"
+		if [ -d "$_dirtest" ]; then
+			ROOT_DIR=$ROOT_DIR SITE_DIR=$_site bash "$ROOT_DIR/gbc/bin/run_tests"
+		fi
+	done
+
+}
 function updateConfigs() {
-	echo "ROOT_DIR:$ROOT_DIR"
+	# echo "ROOT_DIR:$ROOT_DIR"
 	if [ -z "$BIND_ADDRESS" ]; then BIND_ADDRESS="0.0.0.0"; fi
 	$LUA_BIN -e "BIND_ADDRESS=\"$BIND_ADDRESS\";ROOT_DIR='$ROOT_DIR'; DEBUG=$DEBUG; dofile('$ROOT_DIR/gbc/bin/shell_func.lua'); updateConfigs()"
 }
