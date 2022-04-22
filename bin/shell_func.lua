@@ -423,7 +423,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
             -- print("path:" .. path)
             -- get numOfJobWorkers
             local appConfig = appConfigs[path]
-            --print(appConfig.app.supervisor)
+            print("appConfig:" .. inspect(appConfig))
             local nproc = 0
             if appConfig and appConfig.app and appConfig.app.numOfJobWorkers then
                 -- prog = string.gsub(prog, "_NUM_PROCESS_", appConfig.app.numOfJobWorkers)
