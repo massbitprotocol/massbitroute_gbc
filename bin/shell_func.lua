@@ -419,8 +419,9 @@ local _updateAppConfig = function(site_name, site_path, idx)
         print("appConfigs:" .. inspect(appConfigs))
         print("apps:" .. inspect(apps))
         for name, _path in pairs(apps) do
-            local path = site_path .. "/" .. _path
+            local path = _get_absolute_path(site_path .. "/" .. _path)
             print("path:" .. path)
+
             local prog = string.gsub(_SUPERVISOR_WORKER_PROG_TMPL, "_GBC_CORE_ROOT_", ROOT_DIR)
             -- print("path:" .. path)
             -- get numOfJobWorkers
