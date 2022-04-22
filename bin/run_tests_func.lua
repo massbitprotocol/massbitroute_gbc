@@ -42,8 +42,23 @@ local Factory = cc.import("#gbc").Factory
 -- declare Tests class
 
 local Tests = cc.class("Tests")
+local _CURL_PATTERN = "curl -s -k --no-keepalive -o - '%s'"
 
-local _CURL_PATTERN = "curl -s -k -H 'Host: dapi.massbitroute.dev' --no-keepalive -o - '%s'"
+if TEST_DOMAIN then
+    _CURL_PATTERN = "curl -s -k -H 'Host: " .. TEST_DOMAIN .. "' --no-keepalive -o - '%s'"
+end
+
+local _TEST_PATH = "/__tests/"
+if TEST_PATH then
+    _TEST_PATH = TEST_PATH
+end
+
+local _TEST_SCHEME = "https"
+if TEST_SCHEME then
+    _TEST_SCHEME = TEST_SCHEME
+end
+
+local _CURL_PATH = string_format(_TEST_SCHEME .. "://127.0.0.1" .. _TEST_PATH .. "?action=%%s")
 
 local _parseargs, _findtests
 local _testsrv, _testcli
@@ -53,7 +68,7 @@ function Tests:ctor(appConfig, appRootPath)
     -- _print(inspect(appConfig))
     -- _print(inspect(appRootPath))
     -- self._url = string_format("https://127.0.0.1:%s/tests/?action=%%s", tostring(appConfig.server.nginx.port))
-    self._url = string_format("https://127.0.0.1/__tests/?action=%%s")
+    self._url = _CURL_PATH
     self._config = appConfig
     self._root = appRootPath
 end

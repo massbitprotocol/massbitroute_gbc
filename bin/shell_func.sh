@@ -84,6 +84,7 @@ loadEnv() {
 		        else
 		        print $1"=\""$2"\"";	
 		}' ${tmp}.1 >$ROOT_DIR/.env_raw
+		cat $ROOT_DIR/.env_raw
 		awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
 		{
 		        sub(/^export\s*/,"",$1);
@@ -110,7 +111,7 @@ function runTests() {
 	cat $ROOT_DIR/.module_paths | while read _site; do
 		_dirtest="$_site/apps/tests"
 		if [ -d "$_dirtest" ]; then
-			ROOT_DIR=$ROOT_DIR SITE_DIR=$_site bash "$ROOT_DIR/gbc/bin/run_tests"
+			TEST_DOMAIN=$TEST_DOMAIN ROOT_DIR=$ROOT_DIR SITE_DIR=$_site bash "$ROOT_DIR/gbc/bin/run_tests"
 		fi
 	done
 

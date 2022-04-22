@@ -9,6 +9,10 @@ if [ -z "$SITE_DIR" ]; then
 	echo "SITE_DIR not defined"
 	exit 1
 fi
+if [ -z "$TEST_DOMAIN" ]; then
+	echo "TEST_DOMAIN not defined"
+	exit 1
+fi
 # ROOT_DIR=$(dirname "$CUR_DIR")
 # ROOT_DIR=$(dirname "$ROOT_DIR")
 # ROOT_DIR=$(dirname "$ROOT_DIR")
@@ -21,4 +25,4 @@ fi
 
 DEBUG=1
 
-$LUA_BIN -e "ROOT_DIR='$ROOT_DIR'; SITE_DIR='$SITE_DIR';DEBUG=$DEBUG; dofile('$CUR_DIR/run_tests_func.lua'); runTests('$*')"
+$LUA_BIN -e "ROOT_DIR='$ROOT_DIR'; SITE_DIR='$SITE_DIR'; TEST_DOMAIN='$TEST_DOMAIN'; DEBUG=$DEBUG; dofile('$CUR_DIR/run_tests_func.lua'); runTests('$*')"

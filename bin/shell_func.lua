@@ -418,7 +418,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
         local workers = {}
         for name, _path in pairs(apps) do
             local path = site_path .. "/" .. _path
-            print("path:" .. path)
+            -- print("path:" .. path)
             local prog = string.gsub(_SUPERVISOR_WORKER_PROG_TMPL, "_GBC_CORE_ROOT_", ROOT_DIR)
             -- print("path:" .. path)
             -- get numOfJobWorkers
@@ -499,7 +499,7 @@ _replace_env = function(contents)
     return contents
 end
 _updateNginxConfig = function()
-    print("updateNginxConfig")
+    -- print("updateNginxConfig")
     local config = _checkVarConfig()
 
     local contents = io.readfile(NGINX_CONF_PATH)
@@ -533,14 +533,14 @@ _updateNginxConfig = function()
     if _modules == nil then
         _modules = ""
     end
-    print("Modules:" .. _modules)
+    -- print("Modules:" .. _modules)
     local contents_sup = io.readfile(SUPERVISORD_CONF_PATH)
 
     local _supervisor = _getValue(_sites_config, "supervisor")
-    print("supervisor:" .. inspect(_supervisor))
+    -- print("supervisor:" .. inspect(_supervisor))
 
     local _supervisors = _getValue(_sites_config, "supervisors")
-    print("supervisors:" .. inspect(_supervisors))
+    -- print("supervisors:" .. inspect(_supervisors))
     if _supervisors and type(_supervisors) == "table" then
         table.merge(supervisors_once, _supervisors)
     end
@@ -551,7 +551,7 @@ _updateNginxConfig = function()
     contents_sup = string.gsub(contents_sup, "_GBC_CORE_ROOT_", ROOT_DIR)
 
     -- _replace_env(VAR_SUPERVISORD_CONF_PATH)
-    print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
+    -- print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup)
 
     -- print("ROOT_DIR:" .. ROOT_DIR)
@@ -589,7 +589,7 @@ _updateNginxConfig = function()
             _continue = true
             _site_path = SITES_DIR .. "/" .. __site_path
         elseif type(__site_path) == "table" then
-            print(__site_path.disabled)
+            -- print(__site_path.disabled)
             if __site_path.disabled == true then
                 _continue = false
             else
@@ -614,13 +614,13 @@ _updateNginxConfig = function()
             --         _site_path = _abs_path
             --     end
             -- end
-            print("site_path:" .. _site_path)
+            -- print("site_path:" .. _site_path)
 
             _module_paths[#_module_paths + 1] = _get_absolute_path(_site_path)
 
-            print("module_paths")
-            print(inspect(_module_paths))
-            print(__site_path.luainit)
+            -- print("module_paths")
+            -- print(inspect(_module_paths))
+            -- print(__site_path.luainit)
 
             if __site_path.luainit then
                 includes_luainit[#includes_luainit + 1] = __site_path.luainit
@@ -763,14 +763,14 @@ _updateNginxConfig = function()
     contents = string.gsub(contents, "_GBC_CORE_ROOT_", ROOT_DIR)
 
     contents = _replace_env(contents)
-    print("write_file:" .. VAR_NGINX_CONF_PATH)
+    -- print("write_file:" .. VAR_NGINX_CONF_PATH)
     io.writefile(VAR_NGINX_CONF_PATH, contents)
 
     -- print("supervisors_once:" .. inspect(supervisors_once))
 
     local contents_sup_once = io.readfile(VAR_SUPERVISORD_CONF_PATH)
 
-    print("contents_sup_once:" .. contents_sup_once)
+    -- print("contents_sup_once:" .. contents_sup_once)
     local _supervisor_once = table.concat(table.values(supervisors_once), "\n")
     if _supervisor_once then
         contents_sup_once = string.gsub(contents_sup_once, ";_WORKERS_", _supervisor_once .. "\n;_WORKERS_")
@@ -779,11 +779,11 @@ _updateNginxConfig = function()
     contents_sup_once = string.gsub(contents_sup_once, "_GBC_CORE_ROOT_", ROOT_DIR)
 
     -- print("contents_sup_once:" .. contents_sup_once)
-    print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
+    -- print("write_file:" .. VAR_SUPERVISORD_CONF_PATH)
     io.writefile(VAR_SUPERVISORD_CONF_PATH, contents_sup_once)
 
-    print("module_paths")
-    print(inspect(_module_paths))
+    -- print("module_paths")
+    -- print(inspect(_module_paths))
 
     io.writefile(ROOT_DIR .. "/.module_paths", table.concat(_module_paths, "\n") .. "\n")
     return includes_path, includes_cpath
@@ -889,7 +889,7 @@ local function no_usetmp()
     repeat
         _sock = true
         es_trans_port = es_trans_port + 1
-        print(es_trans_port)
+        -- print(es_trans_port)
         local sock = socket.tcp()
         _sock = sock:connect("127.0.0.1", es_trans_port)
         sock:close()
