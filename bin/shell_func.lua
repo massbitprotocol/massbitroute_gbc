@@ -416,10 +416,11 @@ local _updateAppConfig = function(site_name, site_path, idx)
         local appConfigs = Factory.makeAppConfigs(appkeys, config, package.path)
         --local contents_sup = io.readfile(SUPERVISORD_CONF_PATH)
         local workers = {}
+        print("appConfigs:" .. inspect(appConfigs))
         print("apps:" .. inspect(apps))
         for name, _path in pairs(apps) do
             local path = site_path .. "/" .. _path
-            -- print("path:" .. path)
+            print("path:" .. path)
             local prog = string.gsub(_SUPERVISOR_WORKER_PROG_TMPL, "_GBC_CORE_ROOT_", ROOT_DIR)
             -- print("path:" .. path)
             -- get numOfJobWorkers
