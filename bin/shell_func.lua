@@ -416,6 +416,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
         local appConfigs = Factory.makeAppConfigs(appkeys, config, package.path)
         --local contents_sup = io.readfile(SUPERVISORD_CONF_PATH)
         local workers = {}
+        print("apps:" .. inspect(apps))
         for name, _path in pairs(apps) do
             local path = site_path .. "/" .. _path
             -- print("path:" .. path)
