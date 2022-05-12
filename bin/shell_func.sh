@@ -52,20 +52,22 @@ loadEnv() {
 	fi
 
 	if [ -n "$MBR_ENV" ]; then
-		_file="$ROOT_DIR/.env.$MBR_ENV"
-		if [ ! -f "$_file" ]; then return; fi
+
 		mkdir -p $ROOT_DIR/src
 
 		tmp=$(mktemp)
 		cat "$ROOT_DIR/.env" >$tmp
 		echo >>$tmp
 		# echo "export MBR_ENV=$MBR_ENV" >$tmp
-		cat $_file | awk 'NF > 0 && !/^\s*source/ && !/^\s*#/' >>$tmp
-		echo >>$tmp
-		cat $_file | awk '/^\s*source/ {print $2}' | while read f; do
-			cat $f
-			echo
-		done | awk "NF > 0 && !/^#/" >>$tmp
+		_file="$ROOT_DIR/.env.$MBR_ENV"
+		if [ -f "$_file" ]; then
+			cat $_file | awk 'NF > 0 && !/^\s*source/ && !/^\s*#/' >>$tmp
+			echo >>$tmp
+			cat $_file | awk '/^\s*source/ {print $2}' | while read f; do
+				cat $f
+				echo
+			done | awk "NF > 0 && !/^#/" >>$tmp
+		fi
 		ls $ROOT_DIR/env | while read f; do
 			cat $f
 			echo
