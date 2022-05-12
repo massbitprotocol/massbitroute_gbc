@@ -69,7 +69,7 @@ loadEnv() {
 			done | awk "NF > 0 && !/^#/" >>$tmp
 		fi
 		ls $ROOT_DIR/env | while read f; do
-			cat $f
+			cat $ROOT_DIR/env/$f
 			echo
 		done | awk "NF > 0 && !/^#/" >>$tmp
 		source $tmp
