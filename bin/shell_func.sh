@@ -68,7 +68,7 @@ loadEnv() {
 				echo
 			done | awk "NF > 0 && !/^#/" >>$tmp
 		fi
-		ls $ROOT_DIR/env | while read f; do
+		ls $ROOT_DIR/env/*.env | while read f; do
 			cat $ROOT_DIR/env/$f
 			echo
 		done | awk "NF > 0 && !/^#/" >>$tmp
