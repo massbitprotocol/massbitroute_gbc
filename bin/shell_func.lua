@@ -416,8 +416,8 @@ local _updateAppConfig = function(site_name, site_path, idx)
         local appConfigs = Factory.makeAppConfigs(appkeys, config, package.path)
         --local contents_sup = io.readfile(SUPERVISORD_CONF_PATH)
         local workers = {}
-        print("appConfigs:" .. inspect(appConfigs))
-        print("apps:" .. inspect(apps))
+        -- print("appConfigs:" .. inspect(appConfigs))
+        -- print("apps:" .. inspect(apps))
         for name, _path in pairs(apps) do
             local path = _get_absolute_path(site_path .. "/" .. _path)
             print("path:" .. path)
@@ -426,7 +426,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
             -- print("path:" .. path)
             -- get numOfJobWorkers
             local appConfig = appConfigs[path]
-            print("appConfig:" .. inspect(appConfig))
+            -- print("appConfig:" .. inspect(appConfig))
             local nproc = 0
             if appConfig and appConfig.app and appConfig.app.numOfJobWorkers then
                 -- prog = string.gsub(prog, "_NUM_PROCESS_", appConfig.app.numOfJobWorkers)
