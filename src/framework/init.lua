@@ -52,8 +52,8 @@ setmetatable(
     _g,
     {
         __newindex = function(_, name, value)
-            local msg = string_format('USE "cc.exports.%s = <value>" INSTEAD OF SET GLOBAL VARIABLE', name)
-            print(debug.traceback(msg, 2))
+            -- local msg = string_format('USE "cc.exports.%s = <value>" INSTEAD OF SET GLOBAL VARIABLE', name)
+            -- print(debug.traceback(msg, 2))
             if not ngx then
                 print("")
             end

@@ -2,5 +2,6 @@
 
 ROOT_DIR=$(cd "$(dirname $0)" && pwd)
 source $ROOT_DIR/bin/shell_func.sh
-
+cd $ROOT_DIR
+loadEnv $ROOT_DIR
 checkStatus
