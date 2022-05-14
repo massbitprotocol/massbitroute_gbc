@@ -69,7 +69,7 @@ loadEnv() {
 			done | awk "NF > 0 && !/^#/" >>$tmp
 		fi
 		if [ -d "$ROOT_DIR/env" ]; then
-			ls $ROOT_DIR/env/*.env | while read f; do
+			find $ROOT_DIR/env -type f -iname '*.env' | while read f; do
 				if [ -f "$f" ]; then
 					cat $f
 					echo
