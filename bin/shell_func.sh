@@ -68,10 +68,14 @@ loadEnv() {
 				echo
 			done | awk "NF > 0 && !/^#/" >>$tmp
 		fi
-		ls $ROOT_DIR/env/*.env | while read f; do
-			cat $f
-			echo
-		done | awk "NF > 0 && !/^#/" >>$tmp
+		if [ -d "$ROOT_DIR/env" ]; then
+			ls $ROOT_DIR/env/*.env | while read f; do
+				if [ -f "$f" ]; then
+					cat $f
+					echo
+				fi
+			done | awk "NF > 0 && !/^#/" >>$tmp
+		fi
 		source $tmp
 
 		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
