@@ -38,7 +38,7 @@ loadEnv() {
 	cd $ROOT_DIR
 	if [ -z "$MBR_ENV" ]; then
 		if [ -f "$ROOT_DIR/.env" ]; then
-			source $ROOT_DIR/.env
+			source $ROOT_DIR/.env >/dev/null 2>&1
 		fi
 	fi
 
@@ -76,7 +76,7 @@ loadEnv() {
 				fi
 			done | awk "NF > 0 && !/^#/" >>$tmp
 		fi
-		source $tmp
+		source $tmp >/dev/null 2>&1
 
 		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
 			#	echo "export $k=$((k))"
