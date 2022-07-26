@@ -87,13 +87,17 @@ end
 
 package.path =
     ROOT_DIR ..
-    "/bin/openresty/lualib/?.lua;" ..
-        ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
+    "/src/?.lua;" ..
+        ROOT_DIR ..
+            "/bin/openresty/lualib/?.lua;" ..
+                ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. package.path
 
 package.cpath =
     ROOT_DIR ..
-    "/bin/openresty/lualib/?.so;" ..
-        ROOT_DIR .. "/gbc/lib/?.so;" .. ROOT_DIR .. "/gbc/src/?.so;" .. ROOT_DIR .. "/src/?.so;" .. package.cpath
+    "/src/?.so;" ..
+        ROOT_DIR ..
+            "/bin/openresty/lualib/?.so;" ..
+                ROOT_DIR .. "/gbc/lib/?.so;" .. ROOT_DIR .. "/gbc/src/?.so;" .. package.cpath
 
 local inspect = require "inspect"
 require("framework.init")
