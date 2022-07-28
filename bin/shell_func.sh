@@ -113,7 +113,8 @@ loadEnv() {
 		}
 
 		}
-		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/env.lua
+		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/_env.lua
+		cp $ROOT_DIR/src/_env.lua $ROOT_DIR/src/env.lua
 
 		rm ${tmp}*
 	fi
