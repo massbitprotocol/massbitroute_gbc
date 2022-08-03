@@ -7,16 +7,16 @@ source $ROOT_DIR/bin/shell_func.sh
 # source $ROOT_DIR/scripts/base.sh
 cd $ROOT_DIR
 mkdir -p $ROOT_DIR/tmp $ROOT_DIR/logs/nginx $ROOT_DIR/logs $ROOT_DIR/db
-loadEnv $ROOT_DIR
+loadEnv $ROOT_DIR >/dev/null
 
 case "$1" in
-install_libs)
-	apt install -y libmaxminddb-dev uuid-dev
-	for p in luafilesystem lpeg lua-messagepack; do
-		/usr/local/openresty/luajit/bin/luarocks install $p
-	done
-	exit 0
-	;;
+# install_libs)
+# 	apt install -y libmaxminddb-dev uuid-dev
+# 	for p in luafilesystem lpeg lua-messagepack; do
+# 		/usr/local/openresty/luajit/bin/luarocks install $p
+# 	done
+# 	exit 0
+# 	;;
 
 _env)
 	exit 0

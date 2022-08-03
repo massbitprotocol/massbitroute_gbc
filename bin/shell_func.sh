@@ -42,22 +42,24 @@ loadEnv() {
 		fi
 	fi
 
-	if [ -z "$MBR_ENV" ]; then
-		if [ -f "$ROOT_DIR/vars/ENV" ]; then
-			export MBR_ENV=$(cat "$ROOT_DIR/vars/ENV")
-		fi
-		if [ -f "$ROOT_DIR/vars/MBR_ENV" ]; then
-			export MBR_ENV=$(cat "$ROOT_DIR/vars/MBR_ENV")
-		fi
-	fi
+	# if [ -z "$MBR_ENV" ]; then
+	# 	if [ -f "$ROOT_DIR/vars/ENV" ]; then
+	# 		export MBR_ENV=$(cat "$ROOT_DIR/vars/ENV")
+	# 	fi
+	# 	if [ -f "$ROOT_DIR/vars/MBR_ENV" ]; then
+	# 		export MBR_ENV=$(cat "$ROOT_DIR/vars/MBR_ENV")
+	# 	fi
+	# fi
 
 	if [ -n "$MBR_ENV" ]; then
 
 		mkdir -p $ROOT_DIR/src
 
 		tmp=$(mktemp)
-		cat "$ROOT_DIR/.env" >$tmp
-		echo >>$tmp
+		if [ -f "$ROOT_DIR/.env" ]; then
+			cat "$ROOT_DIR/.env" >$tmp
+			echo >>$tmp
+		fi
 		# echo "export MBR_ENV=$MBR_ENV" >$tmp
 		_file="$ROOT_DIR/.env.$MBR_ENV"
 		if [ -f "$_file" ]; then
@@ -111,7 +113,8 @@ loadEnv() {
 		}
 
 		}
-		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/env.lua
+		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/_env.lua
+		cp $ROOT_DIR/src/_env.lua $ROOT_DIR/src/env.lua
 
 		rm ${tmp}*
 	fi

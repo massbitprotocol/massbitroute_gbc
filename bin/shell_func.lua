@@ -87,13 +87,17 @@ end
 
 package.path =
     ROOT_DIR ..
-    "/bin/openresty/lualib/?.lua;" ..
-        ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
+    "/src/?.lua;" ..
+        ROOT_DIR ..
+            "/bin/openresty/lualib/?.lua;" ..
+                ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. package.path
 
 package.cpath =
     ROOT_DIR ..
-    "/bin/openresty/lualib/?.so;" ..
-        ROOT_DIR .. "/gbc/lib/?.so;" .. ROOT_DIR .. "/gbc/src/?.so;" .. ROOT_DIR .. "/src/?.so;" .. package.cpath
+    "/src/?.so;" ..
+        ROOT_DIR ..
+            "/bin/openresty/lualib/?.so;" ..
+                ROOT_DIR .. "/gbc/lib/?.so;" .. ROOT_DIR .. "/gbc/src/?.so;" .. package.cpath
 
 local inspect = require "inspect"
 require("framework.init")
@@ -820,6 +824,8 @@ _updateRedisConfig = function()
 end
 
 _updateSupervisordConfig = function(includes_path, includes_cpath)
+    includes_cpath = string.gsub(includes_cpath, "_GBC_CORE_ROOT_", ROOT_DIR)
+    includes_path = string.gsub(includes_path, "_GBC_CORE_ROOT_", ROOT_DIR)
     local config = _checkVarConfig()
     local appkeys = _checkAppKeys()
     local appConfigs = Factory.makeAppConfigs(appkeys, config, package.path)
@@ -830,6 +836,7 @@ _updateSupervisordConfig = function(includes_path, includes_cpath)
     --local contents = io.readfile(SUPERVISORD_CONF_PATH)
     local contents = io.readfile(VAR_SUPERVISORD_CONF_PATH)
     contents = string.gsub(contents, "_GBC_CORE_ROOT_", ROOT_DIR)
+
     contents = string.gsub(contents, "_LUA_PATH_", includes_path)
     contents = string.gsub(contents, "_LUA_CPATH_", includes_cpath)
     contents = string.gsub(contents, "_BEANSTALKD_PORT_", beanport)
