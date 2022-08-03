@@ -7,11 +7,13 @@ source $ROOT_DIR/bin/shell_func.sh
 # source $ROOT_DIR/scripts/base.sh
 cd $ROOT_DIR
 mkdir -p $ROOT_DIR/tmp $ROOT_DIR/logs/nginx $ROOT_DIR/logs $ROOT_DIR/db
-loadEnv $ROOT_DIR >/dev/null
-sleep 1
 if [ ! -f "$ROOT_DIR/src/env.lua" ]; then
-	echo "$ROOT_DIR/src/env.lua not exists"
-	exit 1
+	loadEnv $ROOT_DIR >/dev/null
+	sleep 1
+	if [ ! -f "$ROOT_DIR/src/env.lua" ]; then
+		echo "$ROOT_DIR/src/env.lua not exists"
+		exit 1
+	fi
 fi
 case "$1" in
 # install_libs)
@@ -23,6 +25,12 @@ case "$1" in
 # 	;;
 
 _env)
+	loadEnv $ROOT_DIR >/dev/null
+	sleep 1
+	if [ ! -f "$ROOT_DIR/src/env.lua" ]; then
+		echo "$ROOT_DIR/src/env.lua not exists"
+		exit 1
+	fi
 	exit 0
 	;;
 
