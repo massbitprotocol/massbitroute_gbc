@@ -86,7 +86,10 @@ loadEnv() {
 			echo "export $k=${!k}"
 		done >${tmp}.1
 		cat ${tmp}.1
-		# mv ${tmp}.1 $ROOT_DIR/.env_raw
+		# mv ${tmp}.1 $ROOT_DIR/.env_ra
+		if [ -f "$SITE_ROOT/.env_raw" ]; then
+			rm $SITE_ROOT/.env_raw
+		fi
 
 		awk -F'=' -v q1="'" -v q2='"' '
 		{
@@ -96,8 +99,12 @@ loadEnv() {
 		        else
 		        print $1"=\""$2"\"";	
 		}' ${tmp}.1 >$ROOT_DIR/.env_raw
-		cat $ROOT_DIR/.env_raw
-		awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
+
+		if [ -f "$SITE_ROOT/.env_raw" ]; then
+			source $SITE_ROOT/.env_raw >/dev/null
+
+			# cat $ROOT_DIR/.env_raw
+			awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
 		{
 		        sub(/^export\s*/,"",$1);
                 gsub(/ /,"",$1);
@@ -114,8 +121,8 @@ loadEnv() {
 
 		}
 		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/_env.lua
-		cp $ROOT_DIR/src/_env.lua $ROOT_DIR/src/env.lua
-
+			cp $ROOT_DIR/src/_env.lua $ROOT_DIR/src/env.lua
+		fi
 		rm ${tmp}*
 	fi
 }
