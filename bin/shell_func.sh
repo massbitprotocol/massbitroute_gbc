@@ -34,7 +34,7 @@ SED_BIN='sed -i'
 #fi
 
 loadEnv() {
-
+	return
 	# if [ ! -f "/tmp/loadenv.lock" ]; then
 	# 	touch /tmp/loadenv.lock
 	# 	ROOT_DIR=$1
