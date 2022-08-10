@@ -15,14 +15,14 @@ ROOT_DIR=$(cd "$(dirname $0)" && pwd)
 mkdir -p $ROOT_DIR/logs/nginx $ROOT_DIR/db $ROOT_DIR/tmp
 source $ROOT_DIR/gbc/bin/shell_func.sh
 
-if [ ! -f "$ROOT_DIR/src/env.lua" ]; then
-	loadEnv $ROOT_DIR >/dev/null
-	sleep 1
-	if [ ! -f "$ROOT_DIR/src/env.lua" ]; then
-		echo "$ROOT_DIR/src/env.lua not exists"
-		exit 1
-	fi
-fi
+# if [ ! -f "$ROOT_DIR/src/env.lua" ]; then
+# 	loadEnv $ROOT_DIR >/dev/null
+# 	sleep 1
+# 	if [ ! -f "$ROOT_DIR/src/env.lua" ]; then
+# 		echo "$ROOT_DIR/src/env.lua not exists"
+# 		exit 1
+# 	fi
+# fi
 
 if [ $? -ne 0 ]; then
 	echo "Terminating..." >&2
