@@ -437,6 +437,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
                 nproc = appConfig.app.numOfJobWorkers
             end
             prog = string.gsub(prog, "_NUM_PROCESS_", nproc)
+            prog = string.gsub(prog, "_GBC_CORE_ROOT_", ROOT_DIR)
 
             if appConfig and appConfig.app and appConfig.app.supervisor then
                 prog = string.gsub(prog, ";;_CUSTOM_SERVICE_", appConfig.app.supervisor)
