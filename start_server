@@ -32,7 +32,7 @@ fi
 # if [ $OS_TYPE == "MACOS" ]; then
 # 	ARGS=$($ROOT_DIR/gbc/bin/getopt_long "$@")
 # else
-# 	ARGS=$(getopt -o vh --long debug,version,help -n 'Start GameBox Cloud Core' -- "$@")
+ARGS=$(getopt -o vh --long debug,version,help -n 'Start GameBox Cloud Core' -- "$@")
 # fi
 
 eval set -- "$ARGS"
