@@ -35,7 +35,7 @@ SED_BIN='sed -i'
 
 loadEnv() {
 
-
+exit 0
 	if [ ! -f "/tmp/loadenv.lock" ]; then
 		touch /tmp/loadenv.lock
 		ROOT_DIR=$1
@@ -47,14 +47,7 @@ loadEnv() {
 
 		fi
 
-		# if [ -z "$MBR_ENV" ]; then
-		# 	if [ -f "$ROOT_DIR/vars/ENV" ]; then
-		# 		export MBR_ENV=$(cat "$ROOT_DIR/vars/ENV")
-		# 	fi
-		# 	if [ -f "$ROOT_DIR/vars/MBR_ENV" ]; then
-		# 		export MBR_ENV=$(cat "$ROOT_DIR/vars/MBR_ENV")
-		# 	fi
-		# fi
+	
 
 		if [ -n "$MBR_ENV" ]; then
 
