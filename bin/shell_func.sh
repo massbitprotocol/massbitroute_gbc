@@ -35,110 +35,104 @@ SED_BIN='sed -i'
 
 loadEnv() {
 
-exit 0
-	if [ ! -f "/tmp/loadenv.lock" ]; then
-		touch /tmp/loadenv.lock
-		ROOT_DIR=$1
-		cd $ROOT_DIR
-		if [ -z "$MBR_ENV" ]; then
-			if [ -f "$ROOT_DIR/.env" ]; then
-				source $ROOT_DIR/.env
-			fi
+	# if [ ! -f "/tmp/loadenv.lock" ]; then
+	# 	touch /tmp/loadenv.lock
+	# 	ROOT_DIR=$1
+	# 	cd $ROOT_DIR
+	# 	if [ -z "$MBR_ENV" ]; then
+	# 		if [ -f "$ROOT_DIR/.env" ]; then
+	# 			source $ROOT_DIR/.env
+	# 		fi
 
-		fi
+	# 	fi
 
-	
+	# 	if [ -n "$MBR_ENV" ]; then
 
-		if [ -n "$MBR_ENV" ]; then
+	# 		mkdir -p $ROOT_DIR/src
 
-			mkdir -p $ROOT_DIR/src
+	# 		tmp=$(mktemp)
+	# 		if [ -f "$ROOT_DIR/.env" ]; then
+	# 			cat "$ROOT_DIR/.env" >$tmp
+	# 			echo >>$tmp
+	# 		fi
+	# 		# echo "export MBR_ENV=$MBR_ENV" >$tmp
+	# 		_file="$ROOT_DIR/.env.$MBR_ENV"
+	# 		if [ -f "$_file" ]; then
+	# 			cat $_file | awk 'NF > 0 && !/^\s*source/ && !/^\s*#/' >>$tmp
+	# 			echo >>$tmp
+	# 			cat $_file | awk '/^\s*source/ {print $2}' | while read f; do
+	# 				cat $f
+	# 				echo
 
-			tmp=$(mktemp)
-			if [ -f "$ROOT_DIR/.env" ]; then
-				cat "$ROOT_DIR/.env" >$tmp
-				echo >>$tmp
-			fi
-			# echo "export MBR_ENV=$MBR_ENV" >$tmp
-			_file="$ROOT_DIR/.env.$MBR_ENV"
-			if [ -f "$_file" ]; then
-				cat $_file | awk 'NF > 0 && !/^\s*source/ && !/^\s*#/' >>$tmp
-				echo >>$tmp
-				cat $_file | awk '/^\s*source/ {print $2}' | while read f; do
-					cat $f
-					echo
+	# 	cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
+	# 		#	echo "export $k=$((k))"
+	# 		if [ -z "$k" ]; then continue; fi
+	# 		echo "export $k=${!k}"
+	# 	done >${tmp}.1
+	# 	cat ${tmp}.1
+	# 	# mv ${tmp}.1 $ROOT_DIR/.env_ra
+	# 	if [ -f "$SITE_ROOT/.env_raw" ]; then
+	# 		rm $SITE_ROOT/.env_raw
+	# 	fi
 
+	# 			done | awk "NF > 0 && !/^#/" >>$tmp
+	# 		fi
+	# 		if [ -d "$ROOT_DIR/env" ]; then
+	# 			find $ROOT_DIR/env -type f -iname '*.env' | while read f; do
+	# 				if [ -f "$f" ]; then
+	# 					cat $f
+	# 					echo
+	# 				fi
+	# 			done | awk "NF > 0 && !/^#/" >>$tmp
+	# 		fi
+	# 		source $tmp
 
-		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
-			#	echo "export $k=$((k))"
-			if [ -z "$k" ]; then continue; fi
-			echo "export $k=${!k}"
-		done >${tmp}.1
-		cat ${tmp}.1
-		# mv ${tmp}.1 $ROOT_DIR/.env_ra
-		if [ -f "$SITE_ROOT/.env_raw" ]; then
-			rm $SITE_ROOT/.env_raw
-		fi
+	# 		cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
+	# 			#	echo "export $k=$((k))"
+	# 			if [ -z "$k" ]; then continue; fi
+	# 			echo "export $k=${!k}"
+	# 		done >${tmp}.1
+	# 		cat ${tmp}.1
+	# 		# mv ${tmp}.1 $ROOT_DIR/.env_raw
 
-				done | awk "NF > 0 && !/^#/" >>$tmp
-			fi
-			if [ -d "$ROOT_DIR/env" ]; then
-				find $ROOT_DIR/env -type f -iname '*.env' | while read f; do
-					if [ -f "$f" ]; then
-						cat $f
-						echo
-					fi
-				done | awk "NF > 0 && !/^#/" >>$tmp
-			fi
-			source $tmp
+	# 		awk -F'=' -v q1="'" -v q2='"' '
 
-			cat $tmp | sed 's/export\s*//g' | awk -F '=' '{print $1}' | while read k; do
-				#	echo "export $k=$((k))"
-				if [ -z "$k" ]; then continue; fi
-				echo "export $k=${!k}"
-			done >${tmp}.1
-			cat ${tmp}.1
-			# mv ${tmp}.1 $ROOT_DIR/.env_raw
+	# 	{
+	# 	        val_1=substr($2,0,1);
+	# 	        if(val_1 == q1 || val_1 == q2)
+	# 	        print $1"="$2;
+	# 	        else
+	# 	        print $1"=\""$2"\"";
+	# 	}' ${tmp}.1 >$ROOT_DIR/.env_raw
 
-			awk -F'=' -v q1="'" -v q2='"' '
+	# 	if [ -f "$SITE_ROOT/.env_raw" ]; then
+	# 		source $SITE_ROOT/.env_raw >/dev/null
 
+	# 		# cat $ROOT_DIR/.env_raw
+	# 		awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
+	# 	{
+	# 	        sub(/^export\s*/,"",$1);
+	#         gsub(/ /,"",$1);
 
-		{
-		        val_1=substr($2,0,1);
-		        if(val_1 == q1 || val_1 == q2)
-		        print $1"="$2;
-		        else
-		        print $1"=\""$2"\"";	
-		}' ${tmp}.1 >$ROOT_DIR/.env_raw
+	#         if(length($2) == 0)
+	# 	        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
+	# 	else {
+	# 	        val_1=substr($2,0,1);
+	# 	        if(val_1 == q1 || val_1 == q2)
+	# 	        cfg=cfg"[\""$1"\"]""="$2",\n";
+	# 	        else
+	# 	        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
+	# 	}
 
-		if [ -f "$SITE_ROOT/.env_raw" ]; then
-			source $SITE_ROOT/.env_raw >/dev/null
+	# 	}
+	# 	END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/_env.lua
+	# 		cp $ROOT_DIR/src/_env.lua $ROOT_DIR/src/env.lua
 
-			# cat $ROOT_DIR/.env_raw
-			awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
-		{
-		        sub(/^export\s*/,"",$1);
-                gsub(/ /,"",$1);
+	# 		rm ${tmp}*
+	# 	fi
+	# 	rm /tmp/loadenv.lock
 
-	        if(length($2) == 0)
-		        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
-		else {
-		        val_1=substr($2,0,1);
-		        if(val_1 == q1 || val_1 == q2)
-		        cfg=cfg"[\""$1"\"]""="$2",\n";
-		        else
-		        cfg=cfg"[\""$1"\"]""=\""$2"\",\n";
-		}
-
-		}
-		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/_env.lua
-			cp $ROOT_DIR/src/_env.lua $ROOT_DIR/src/env.lua
-
-
-			rm ${tmp}*
-		fi
-		rm /tmp/loadenv.lock
-
-	fi
+	# fi
 }
 
 function runTests() {
