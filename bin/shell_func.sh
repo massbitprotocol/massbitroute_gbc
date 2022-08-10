@@ -34,6 +34,7 @@ SED_BIN='sed -i'
 #fi
 
 loadEnv() {
+
 	if [ ! -f "/tmp/loadenv.lock" ]; then
 		touch /tmp/loadenv.lock
 		ROOT_DIR=$1
@@ -42,6 +43,7 @@ loadEnv() {
 			if [ -f "$ROOT_DIR/.env" ]; then
 				source $ROOT_DIR/.env
 			fi
+
 		fi
 
 		# if [ -z "$MBR_ENV" ]; then
@@ -70,6 +72,7 @@ loadEnv() {
 				cat $_file | awk '/^\s*source/ {print $2}' | while read f; do
 					cat $f
 					echo
+
 				done | awk "NF > 0 && !/^#/" >>$tmp
 			fi
 			if [ -d "$ROOT_DIR/env" ]; then
@@ -91,6 +94,7 @@ loadEnv() {
 			# mv ${tmp}.1 $ROOT_DIR/.env_raw
 
 			awk -F'=' -v q1="'" -v q2='"' '
+
 		{
 		        val_1=substr($2,0,1);
 		        if(val_1 == q1 || val_1 == q2)
@@ -98,7 +102,13 @@ loadEnv() {
 		        else
 		        print $1"=\""$2"\"";	
 		}' ${tmp}.1 >$ROOT_DIR/.env_raw
-			cat $ROOT_DIR/.env_raw
+
+
+		if [ -f "$SITE_ROOT/.env_raw" ]; then
+			source $SITE_ROOT/.env_raw >/dev/null
+
+			# cat $ROOT_DIR/.env_raw
+
 			awk -F'=' -v q1="'" -v q2='"' 'BEGIN{cfg="return {\n"}
 		{
 		        sub(/^export\s*/,"",$1);
@@ -118,9 +128,11 @@ loadEnv() {
 		END{print cfg"}"}' $ROOT_DIR/.env_raw >$ROOT_DIR/src/_env.lua
 			cp $ROOT_DIR/src/_env.lua $ROOT_DIR/src/env.lua
 
+
 			rm ${tmp}*
 		fi
 		rm /tmp/loadenv.lock
+
 	fi
 }
 
