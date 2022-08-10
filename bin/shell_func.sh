@@ -35,6 +35,7 @@ SED_BIN='sed -i'
 
 loadEnv() {
 
+
 	if [ ! -f "/tmp/loadenv.lock" ]; then
 		touch /tmp/loadenv.lock
 		ROOT_DIR=$1
@@ -73,6 +74,7 @@ loadEnv() {
 					cat $f
 					echo
 
+
 				done | awk "NF > 0 && !/^#/" >>$tmp
 			fi
 			if [ -d "$ROOT_DIR/env" ]; then
@@ -94,6 +96,7 @@ loadEnv() {
 			# mv ${tmp}.1 $ROOT_DIR/.env_raw
 
 			awk -F'=' -v q1="'" -v q2='"' '
+
 
 		{
 		        val_1=substr($2,0,1);
@@ -132,6 +135,7 @@ loadEnv() {
 			rm ${tmp}*
 		fi
 		rm /tmp/loadenv.lock
+
 
 	fi
 }
