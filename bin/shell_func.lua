@@ -493,13 +493,14 @@ local _updateAppConfig = function(site_name, site_path, idx)
     --end
 end
 _replace_env = function(contents)
+    -- print("replace env")
     -- print("VAR_CONF_ENV:" .. VAR_CONF_ENV)
     if io.exists(VAR_CONF_ENV) then
         local _env = require("env")
         -- print(_env["MBR_API"])
         if _env and type(_env) == "table" and next(_env) then
             for _k, _v in pairs(_env) do
-                print("replace " .. "__ENV_" .. _k .. " to " .. _v)
+                -- print("replace " .. "__ENV_" .. _k .. " to " .. _v)
                 contents = string.gsub(contents, "__ENV_" .. _k .. "__", _v)
             end
         end
