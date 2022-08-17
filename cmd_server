@@ -40,7 +40,16 @@ _env)
 	fi
 	exit 0
 	;;
-
+_run_test)
+	shift
+	runOpenrestyTest $@
+	exit 0
+	;;
+_install_test)
+	shift
+	installOpenrestyTest $@
+	exit 0
+	;;
 _updateconf)
 	updateConfigs
 	exit 0

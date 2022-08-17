@@ -135,6 +135,25 @@ loadEnv() {
 	# fi
 }
 
+function installOpenrestyTest() {
+	apt update
+	apt install -y make
+	export HOME=$ROOT_DIR
+	cd $ROOT_DIR
+	cpan -i Test::Nginx
+	ls -d .cpan/build/* | while read d; do
+		cd $d
+		make install
+		cd -
+	done
+}
+
+function runOpenrestyTest() {
+	cd $ROOT_DIR
+	export PATH=$PATH:$ROOT_DIR/bin/openresty/nginx/sbin
+	prove -r $@
+
+}
 function runTests() {
 	cat $ROOT_DIR/.module_paths | while read _site; do
 		_dirtest="$_site/apps/tests"
