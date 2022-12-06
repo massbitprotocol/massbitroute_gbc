@@ -700,23 +700,23 @@ _updateNginxConfig = function()
             --local site_opt = _checkConfig(_site_path .. "/config.lua")
             _updateAppConfig(_site_name, _site_path, idx)
             idx = idx + 1
-        -- local site_opt = _checkConfig(_site_path .. "/config.lua")
+            -- local site_opt = _checkConfig(_site_path .. "/config.lua")
 
-        -- if io.exists(_site_path .. "/apps/config.ld") then
-        --     print("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
-        --     os.execute("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
-        -- end
+            -- if io.exists(_site_path .. "/apps/config.ld") then
+            --     print("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
+            --     os.execute("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
+            -- end
 
-        -- local apps = _getValue(site_opt, "apps")
-        -- for _app_name, _app_path in pairs(apps) do
-        --     local _app_full_path = _site_path .. "/" .. _app_path
-        --     print(_app_full_path)
+            local apps = _getValue(site_opt, "apps")
+            for _app_name, _app_path in pairs(apps) do
+                local _app_full_path = _site_path .. "/" .. _app_path
+                print(_app_full_path)
 
-        --     includes_path[#includes_path + 1] =
-        --         string.format("%s/?.lua;%s/lib/?.lua;%s/src/?.lua", _app_full_path, _app_full_path, _app_full_path)
-        --     includes_cpath[#includes_cpath + 1] =
-        --         string.format("%s/?.so;%s/lib/?.so;%s/src/?.so", _app_full_path, _app_full_path, _app_full_path)
-        -- end
+                includes_path[#includes_path + 1] =
+                    string.format("%s/?.lua;%s/lib/?.lua;%s/src/?.lua", _app_full_path, _app_full_path, _app_full_path)
+                includes_cpath[#includes_cpath + 1] =
+                    string.format("%s/?.so;%s/lib/?.so;%s/src/?.so", _app_full_path, _app_full_path, _app_full_path)
+            end
         end
     end
 
