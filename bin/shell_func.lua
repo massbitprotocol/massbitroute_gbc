@@ -700,7 +700,7 @@ _updateNginxConfig = function()
             --local site_opt = _checkConfig(_site_path .. "/config.lua")
             _updateAppConfig(_site_name, _site_path, idx)
             idx = idx + 1
-            -- local site_opt = _checkConfig(_site_path .. "/config.lua")
+            local site_opt = _checkConfig(_site_path .. "/config.lua")
 
             -- if io.exists(_site_path .. "/apps/config.ld") then
             --     print("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
